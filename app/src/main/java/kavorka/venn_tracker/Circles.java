@@ -57,6 +57,7 @@ public class Circles {
         double longitude;
         String type;
         Cursor res = myDb.getAllLocations();
+        ArrayList<LatLng> hole = new ArrayList<>();
 
         // For each saved polygon
         // Get the latitude and longitude and put them into a location
@@ -74,6 +75,7 @@ public class Circles {
             else if (type.equals("Temp Hole1")) {
                 LatLng latLng = new LatLng(latitude, longitude);
                 mCirclePointsHole1.add(latLng);
+                hole.add(latLng);
             }
             else if (type.equals("Temp Hole2")) {
                 LatLng latLng = new LatLng(latitude, longitude);
@@ -91,6 +93,7 @@ public class Circles {
                 LatLng latLng = new LatLng(latitude, longitude);
                 mCirclePointsHole5.add(latLng);
             }
+            mHoles.add(hole);
         }
 
         PolygonOptions polygonOptionsGreen = new PolygonOptions()
@@ -1095,11 +1098,14 @@ public class Circles {
 
     public static void saveHolesToDB(Context context) {
         DatabaseHelper myDb = DatabaseHelper.getInstance(context);
-        myDb.removeAllHoles();
 
-        for (int i = 0 ; i < mHoles.size() ; i++) {
-            myDb.addHole("Temp Hole" + i ,mHoles.get(i));
+        if (mHoles.size() > 0) {
+            myDb.addHole("Temp Hole1", mHoles.get(0));
         }
+
+        /*for (int i = 0 ; i < mHoles.size() ; i++) {
+            myDb.addHole("Temp Hole" + i ,mHoles.get(i));
+        }*/
         myDb.close();
     }
 
