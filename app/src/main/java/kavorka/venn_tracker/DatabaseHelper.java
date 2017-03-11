@@ -134,18 +134,16 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
 
     public void addHole(String type, ArrayList<LatLng> holePoints) {
-        double latitude;
-        double longitude;
+        removeAllHoles();
         SQLiteDatabase db = this.getWritableDatabase();
         db.beginTransaction();
 
         for (LatLng latLng : holePoints){
             ContentValues contentValues = new ContentValues();
-            latitude = latLng.latitude;
-            longitude = latLng.longitude;
-            contentValues.put(COL_2, "'" + type + "'");
-            contentValues.put(COL_3, latitude);
-            contentValues.put(COL_4, longitude);
+            //contentValues.put(COL_2, "'" + type + "'");
+            contentValues.put(COL_2, type);
+            contentValues.put(COL_3, latLng.latitude);
+            contentValues.put(COL_4, latLng.longitude);
             db.insert(TABLE_NAME, null, contentValues);
         }
         db.setTransactionSuccessful();
