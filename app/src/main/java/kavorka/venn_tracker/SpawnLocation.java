@@ -139,8 +139,8 @@ public class SpawnLocation {
                     showSpawnLocations(googleMap, latLng, description);
                 }
         }
-        res.close();
         myDb.close();
+        res.close();
         return count;
     }
 
