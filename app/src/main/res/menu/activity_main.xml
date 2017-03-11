@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/menu_settings"
+        android:orderInCategory="100"
+        android:title="Settings"/>
+
+    <item
+        android:id="@id/tutorials"
+        android:orderInCategory="100"
+        android:title="Tutorials"/>
+
+    <item
+        android:id="@id/clear_shapes"
+        android:orderInCategory="100"
+        android:title="Clear Circles" />
+
+    <item
+        android:id="@id/toggle_markers"
+        android:orderInCategory="100"
+        android:title="Show/Hide Markers"/>
+
+    <item
+        android:id="@id/load_spawn_points"
+        android:orderInCategory="100"
+        android:title="Reload Spawn Points"/>
+
+    <item
+        android:id="@id/load_database"
+        android:orderInCategory="100"
+        android:title="Load external database"/>
+
+    <item
+        android:id="@id/export_database"
+        android:orderInCategory="100"
+        android:title="Export database"/>
+
+    <item
+        android:id="@id/delete_spawn_locations"
+        android:orderInCategory="100"
+        android:title="Remove all Spawn Points permanently"/>
+
+    <item
+        android:id="@id/overlay"
+        android:orderInCategory="100"
+        android:title="Toggle Screen Overlay"/>
+
+    <item
+        android:id="@id/contact"
+        android:orderInCategory="100"
+        android:title="Contact"/>
+
+</menu>

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <item name="clear_circles" type="id"/>
+    <item name="set_home" type="id"/>
+    <item name="toggle_markers" type="id"/>
+    <item name="load_spawn_points" type="id"/>
+    <item name="tutorials" type="id"/>
+    <item name="clear_shapes" type="id"/>
+    <item name="overlay" type="id"/>
+    <item name="add_circle" type="id"/>
+    <item name="subtract_circle" type="id"/>
+    <item name="edit_ui" type="id"/>
+    <item name="contact" type="id"/>
+    <item name="load_database" type="id"/>
+    <item name="export_database" type="id"/>
+    <item name="delete_spawn_locations" type="id"/>
+</resources>

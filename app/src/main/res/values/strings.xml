@@ -1,0 +1,105 @@
+<resources>
+    <string name="app_name">Venn Tracker</string>
+    <string name="title_activity_maps">Venn Tracker</string>
+    <string name="PREF_FILE">APP_PREF_FILE</string>
+    <string name="HOME_LATITUDE">39.9542083</string>
+    <string name="HOME_LONGITUDE">-75.1653137</string>
+    <string name="First_Time">
+        "Venn Tracker is an app meant to be used alongside Pokémon Go.
+        \nTo learn how to use Venn Tracker, check out the Tutorials in the top left menu."
+    </string>
+
+    <!--Text for new features popup-->
+    <string name="New_Features">
+        "\n 1.25
+        \n - Added import for json files
+        \n - so far, I have only tested json exported from pokealert (contact me if you get any errors)
+        \n - json filename must include "spawn"
+        \n - Fixed error where it wasn't skipping spawn points that already exist
+        \n\n1.24
+        \n - Added import/export for spawn points.  Collaborate with friends or find data online.
+        \n - Import and export are in BETA, please contact me with any bugs.
+        \n - Exported data can be found in your downloads folder on your phone
+        \n - Imported data must be in .csv format and must contain "spawn" in filename.
+        \n - map overlay now refreshes less frequently
+        \n\n1.23
+        \n- The map long press menu now updates the overlay map when you add something
+        \n- Map overlay is cleaner
+        \n- Overlay should take up less system resources
+        \n- Overlay map now updates every 2 seconds automatically (change in settings)
+        \n- Overlay map now shows all spawn points if you don’t have any green area"
+    </string>
+
+    <!--Text for Circles tutorial-->
+    <string name="Tutorials_Circles_1">
+        "In Pokémon Go, your sighting\'s scanner\'s range is 200 meters.
+        \n\nVenn Tracker allows you to make a visual representation of where a Pokemon on your sighting\'s list can be found."
+    </string>
+    <string name="Tutorials_Circles_2">
+        "If you see a Pokémon on your sighting\'s list that you would like to catch, add a green circle.
+        \nThis is the searchable area that it can be found"
+    </string>
+    <string name="Tutorials_Circles_3">
+        "The outside edge of the green circle indicates the 200 meter radius around your current location where Pokémon on your sighting\'s list can be found."
+    </string>
+    <string name="Tutorials_Circles_4">
+        "If it is within 40 meters of you, it will spawn. Since it hasn\'t, we subtract that area."
+    </string>
+    <string name="Tutorials_Circles_5">
+        "If it is still in your sighting\'s list after moving around, you can add another green circle.
+        \nThe 2 shapes will be combined and you will only see where they intersect."
+        </string>
+    <string name="Tutorials_Circles_6">
+        "By just adding green circles, you can very quickly narrow in on it\'s location."
+        </string>
+    <string name="Tutorials_Circles_7">
+        "If it disappears off of your list, that means you have moved past 200 meters from it\'s location.
+        \nSubtract a red circle to remove anything within 200 meters from you.
+        \n\nTIP:
+        \nIf your sighting's list is full, it may still be within the 200 meters but was just replaced on the list with something else.
+        \nYou can catch some of the Pokémon you see while tracking in order to make sure the one you want has room on the list."
+        </string>
+    <string name="Tutorials_Circles_8">
+        "The searchable area will be greatly reduced.
+        \nNow walk back to the green area and continue tracking :)"
+        </string>
+    <string name="Tutorials_Circles_9">
+        "When adding and subtracting circles, a lot of calculations are being performed on each point of each circle.
+        \nIf the app is hanging when pushing the green/red buttons, try lowing the resolution of the circles in the settings menu."
+    </string>
+
+    <!--Text for Spawn Points tutorial-->
+    <string name="Tutorials_Spawn_Points_1">
+        "In game, Pokemon will only spawn at specific locations on your map.
+        \nVenn Tracker allows you to create spawn markers so you can map out the spawn locations near you.
+        \nIf you have any spawn point markers within your searchable area, check there first.
+    </string>
+    <string name="Tutorials_Spawn_Points_2">
+        "To create a spawn point marker, press and hold on the map where you want to add it until a dialog comes up to confirm."
+    </string>
+    <string name="Tutorials_Spawn_Points_3">
+        "Whenever you catch something in an area you play frequently, add a marker there so you know where to check in the future.
+        \nThese markers are stored and loaded up each time you start Venn Tracker."
+    </string>
+    <string name="Tutorials_Spawn_Points_4">
+        "To delete a marker, just press it and hit 'Delete Marker'."
+    </string>
+    <string name="Tutorials_Spawn_Points_5">
+        "When tracking something, any marker outside of your searchable area will become transparent."
+    </string>
+    <string name="Tutorials_Spawn_Points_6">
+        "Adding and subtracting circles will also eliminate any spawn points outside of the searchable area."
+    </string>
+    <string name="Tutorials_Spawn_Points_7">
+        "Combining spawn points with circles while tracking will allow you to find what you are looking for very quickly."
+    </string>
+    <string name="Tutorials_Spawn_Points_8">
+        "<b>Tips:</b>
+        \n\nSomething will spawn at a spawn point the same minute every hour.
+        \n(There are some exceptions, but this is almost always true)
+        \n\nEvery week or two, some spawn points get added and removed.
+        \nSo far, most spawn points have been staying the same, but keep this in mind when tracking."
+    </string>
+
+
+</resources>
