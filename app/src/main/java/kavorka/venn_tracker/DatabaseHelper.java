@@ -1,5 +1,6 @@
 package kavorka.venn_tracker;
 
+import android.app.ActionBar;
 import android.app.AlertDialog;
 import android.content.ContentValues;
 import android.content.Context;
@@ -99,6 +100,39 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.close();
     }
 
+    public ArrayList<ArrayList<LatLng>> getAllHoles() {
+        ArrayList<ArrayList<LatLng>> holes = new ArrayList<>();
+        SQLiteDatabase db = this.getReadableDatabase();
+
+
+        boolean hasHoles = true;
+        int count = 1;
+
+        while (hasHoles) {
+            String sql = "SELECT * FROM " + TABLE_NAME + " WHERE TYPE = 'TEMP HOLE" + count + "';";
+            Cursor cursor = db.rawQuery(sql, null);
+            if (cursor == null) {
+                hasHoles = false;
+                return holes;
+            } else {
+                ArrayList<LatLng> hole = new ArrayList<>();
+
+                while (cursor.moveToNext()) {
+                    double latitude = cursor.getDouble(2);
+                    double longitude  = cursor.getDouble(3);
+
+                    hole.add(new LatLng(latitude, longitude));
+                }
+                holes.add(hole);
+                hasHoles = false;
+            }
+            count++;
+            cursor.close();
+        }
+        return holes;
+    }
+
+
     public void addHole(String type, ArrayList<LatLng> holePoints) {
         double latitude;
         double longitude;
@@ -109,7 +143,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             ContentValues contentValues = new ContentValues();
             latitude = latLng.latitude;
             longitude = latLng.longitude;
-            contentValues.put(COL_2, type);
+            contentValues.put(COL_2, "'" + type + "'");
             contentValues.put(COL_3, latitude);
             contentValues.put(COL_4, longitude);
             db.insert(TABLE_NAME, null, contentValues);
@@ -152,20 +186,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.close();
     }
 
+
     public void removeAllHoles() {
         SQLiteDatabase db = this.getWritableDatabase();
-        String sql = "DELETE FROM " + TABLE_NAME + " WHERE TYPE LIKE '%Hole%';";
-        db.beginTransaction();
-        db.execSQL(sql);
-        db.setTransactionSuccessful();
-        db.endTransaction();
-        db.close();
-    }
-
-    public void removeCircles() {
-
-        SQLiteDatabase db = this.getWritableDatabase();
-        String sql = "DELETE FROM " + TABLE_NAME + " WHERE TYPE LIKE 'Temp Circle%';";
+        String sql = "DELETE FROM " + TABLE_NAME + " WHERE TYPE LIKE 'Temp Hole%';";
         db.beginTransaction();
         db.execSQL(sql);
         db.setTransactionSuccessful();
