@@ -37,6 +37,7 @@ public class SpawnLocation {
         // Put location into the database as 2 doubles with type Spawn Location.
         DatabaseHelper myDb = DatabaseHelper.getInstance(context);
         myDb.addLocation("Spawn Location", latLng.latitude, latLng.longitude, "No Description");
+        myDb.close();
     }
 
 
@@ -60,10 +61,6 @@ public class SpawnLocation {
                         //Yes button clicked, do something
                         marker.remove();
                         mSpawnPoints.remove(marker);
-                        double latitude;
-                        double longitude;
-                        latitude = marker.getPosition().latitude;
-                        longitude = marker.getPosition().longitude;
                         removeSpawnPointFromDb(context, marker);
 
                     }
@@ -104,9 +101,8 @@ public class SpawnLocation {
         double myLongitude;
         String description;
         int count = 0;
-        String type;
         LatLng latLng;
-        Cursor res = myDb.getAllLocations();
+        Cursor res = myDb.getAllLocations("Spawn Location");
 
         myLatitude = myLocation.getLatitude();
         myLongitude = myLocation.getLongitude();
@@ -116,7 +112,6 @@ public class SpawnLocation {
         // Get the latitude and longitude and put them into a LatLng object
         // Use the LatLng object to place the marker.
         while (res.moveToNext()) {
-            type = res.getString(1);
             latitude = res.getDouble(2);
             longitude = res.getDouble(3);
 
@@ -128,19 +123,21 @@ public class SpawnLocation {
             Location.distanceBetween(latitude, longitude, myLatitude,
                     myLongitude, distance);
 
-            if (type.equals("Spawn Location")) {
+            if (res.getString(5) == null) {
+                description = "No Description";
+            } else {
                 description = res.getString(5);
-                if (loadDistance) {
-                    if (distance[0] < spawnDistance) {
-                        count++;
-                        showSpawnLocations(googleMap, latLng, description);
-                    }
-                }
-                else {
-                        count++;
-                        showSpawnLocations(googleMap, latLng, description);
-                    }
             }
+            if (loadDistance) {
+                if (distance[0] < spawnDistance) {
+                    count++;
+                    showSpawnLocations(googleMap, latLng, description);
+                }
+            }
+            else {
+                    count++;
+                    showSpawnLocations(googleMap, latLng, description);
+                }
         }
         res.close();
         myDb.close();
@@ -149,102 +146,33 @@ public class SpawnLocation {
 
     public static void removeAllSpawnPointFromDb(Context context) {
         DatabaseHelper myDb = DatabaseHelper.getInstance(context);
-        Cursor res = myDb.getAllLocations();
-
-        // Loop through db and store vales of row
-        while (res.moveToNext()) {
-            String dbId = res.getString(0);
-            String dbType = res.getString(1);
-
-            // Only remove spawn locations
-            if (dbType.equals("Spawn Location")) {
-                myDb.deleteLocation(dbId);
-            }
-        }
+        myDb.removeAllSpawnLocations();
+        myDb.close();
     }
 
     // When marker is removed from map, also remove from db
     public static void removeSpawnPointFromDb(Context context, Marker marker) {
         DatabaseHelper myDb = DatabaseHelper.getInstance(context);
-        Cursor res = myDb.getAllLocations();
-        double latitude;
-        double longitude;
-        latitude = marker.getPosition().latitude;
-        longitude = marker.getPosition().longitude;
-
-        // Loop through db and store vales of row
-        while (res.moveToNext()) {
-            String dbId = res.getString(0);
-            String dbType = res.getString(1);
-            double dbLat = res.getDouble(2);
-            double dbLon = res.getDouble(3);
-
-            // Only remove spawn locations
-            if (dbType.equals("Spawn Location")) {
-                // Find marker in db with same position and remove
-                if (dbLat == latitude && dbLon == longitude) {
-                    myDb.deleteLocation(dbId);
-                }
-            }
-        }
+        double latitude = marker.getPosition().latitude;;
+        double longitude = marker.getPosition().longitude;;
+        myDb.removeSpawnLocation(latitude, longitude);
+        myDb.close();
     }
 
-    // Add marker description to db
+    // Add spawn location description to db
     public static void addDescriptionToDb(Context context, Marker marker, String description) {
         DatabaseHelper myDb = DatabaseHelper.getInstance(context);
-        Cursor res = myDb.getAllLocations();
-        double latitude;
-        double longitude;
-        latitude = marker.getPosition().latitude;
-        longitude = marker.getPosition().longitude;
-
-        // Loop through db and store vales of row
-        while (res.moveToNext()) {
-            String dbId = res.getString(0);
-            String dbType = res.getString(1);
-            double dbLat = res.getDouble(2);
-            double dbLon = res.getDouble(3);
-
-            if (dbType.equals("Spawn Location")) {
-                if (dbLat == latitude && dbLon == longitude) {
-                    myDb.addDescription(dbId, dbType, dbLat, dbLon, description);
-                    break;
-                }
-            }
-
-        }
-        myDb.close();
+        double latitude = marker.getPosition().latitude;
+        double longitude = marker.getPosition().longitude;
+        myDb.addDescription("'Spawn Location'", latitude, longitude, description);
     }
 
+    // Get description of spawn location
     public static String getMarkerDescription(Context context, Marker marker) {
         DatabaseHelper myDb = DatabaseHelper.getInstance(context);
-        Cursor res = myDb.getAllLocations();
-        double latitude;
-        double longitude;
-        String description;
-        latitude = marker.getPosition().latitude;
-        longitude = marker.getPosition().longitude;
-
-        // Loop through db and store vales of row
-        while (res.moveToNext()) {
-            String dbId = res.getString(0);
-            String dbType = res.getString(1);
-            double dbLat = res.getDouble(2);
-            double dbLon = res.getDouble(3);
-            if (res.getString(5) == null) {
-                description = "No Description";
-            } else {
-                description = res.getString(5);
-            }
-
-            if (dbType.equals("Spawn Location")) {
-                if (dbLat == latitude && dbLon == longitude) {
-                    return description;
-                }
-            }
-        }
-        myDb.close();
-        return "No Description";
+        double latitude = marker.getPosition().latitude;
+        double longitude = marker.getPosition().longitude;
+        return myDb.getDescription("'Spawn Location'", latitude, longitude);
     }
 
     public static void markerInCircle(ArrayList<LatLng> polygonGreen) {
@@ -265,10 +193,9 @@ public class SpawnLocation {
             }
         }
         for (Marker marker : mSpawnPointsInCircle) {
-            ArrayList<LatLng> hole;
-            for (int i = 1 ; i <=5 ; i++) {
-                hole = Circles.getPolygonPointsHole(i);
-                if (PolyUtil.containsLocation(marker.getPosition(), hole, Circles.getGeoDisc())) {
+            ArrayList<ArrayList<LatLng>> holes = Circles.getHoles();
+            for (int i = 1 ; i < holes.size() ; i++) {
+                if (PolyUtil.containsLocation(marker.getPosition(), holes.get(i), Circles.getGeoDisc())) {
                     mSpawnPointsNotInCircle.add(marker);
                 }
             }
