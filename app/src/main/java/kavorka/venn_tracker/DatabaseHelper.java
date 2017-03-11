@@ -177,14 +177,12 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public Cursor getAllLocations() {
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor res = db.rawQuery("select * from " + TABLE_NAME, null);
-        db.close();
         return res;
     }
 
     public Cursor getAllLocations(String type) {
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor res = db.rawQuery("select * from " + TABLE_NAME + " WHERE type = '" + type + "';", null);
-        db.close();
         return res;
     }
 
@@ -198,7 +196,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         {
             e.printStackTrace();
         }
-        db.close();
     }
 
 
@@ -248,7 +245,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         ContentValues contentValues = new ContentValues();
         contentValues.put(COL_5, time);
         db.insert(TABLE_NAME, null, contentValues);
-        db.close();
     }
 
     public void loadCsv(File dir, Context ctx) {
