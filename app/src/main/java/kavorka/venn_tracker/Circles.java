@@ -12,8 +12,10 @@ import com.google.android.gms.maps.model.Polygon;
 import com.google.android.gms.maps.model.PolygonOptions;
 import com.google.maps.android.PolyUtil;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
 public class Circles {
     private static ArrayList<Circle> circlesToClear = new ArrayList<>();
@@ -425,7 +427,24 @@ public class Circles {
             boolean intersect5 = false;
             circlePointsHoleNew = getCirclePoints(mHoleRadius, center, resolution);
 
-            // Check which holes our new hole intersects with so we know how to combine it.
+            boolean holeOutside = false;
+            for (LatLng latLng : circlePointsHoleNew) {
+                if (!PolyUtil.containsLocation(latLng, newPolygonPointsGreen, isGeoDisc)) {
+                    holeOutside = true;
+                }
+                else {
+                    holeOutside = false;
+                    break;
+                }
+            }
+            if (!holeOutside) {
+                mHoles.add(circlePointsHoleNew);
+            }
+            if (mHoles.size() > 1) {
+                combineHoles();
+            }
+
+            /*// Check which holes our new hole intersects with so we know how to combine it.
             for (LatLng latLng : circlePointsHoleNew) {
                 if (!intersect1 && mHoles.size() > 0) {
                     if (PolyUtil.containsLocation(latLng, mHoles.get(0), true)) {
@@ -509,9 +528,11 @@ public class Circles {
                 }
             } else if (intersect5) {
                 mHoles.set(4, combinePolygonGreen(circlePointsHoleNew, mHoles.get(4), true));
-            }
+            }*/
 
-            boolean holeOutside = false;
+            // Check if our hole falls outside of the polygon
+            // Don't add it if it does
+            /*boolean holeOutside = false;
             for (LatLng latLng : circlePointsHoleNew) {
                 if (!PolyUtil.containsLocation(latLng, newPolygonPointsGreen, isGeoDisc)) {
                     holeOutside = true;
@@ -520,10 +541,8 @@ public class Circles {
                     holeOutside = false;
                     break;
                 }
-            }
-            if (!combineHoles && !holeOutside) {
-                mHoles.add(circlePointsHoleNew);
-            }
+            }*/
+
         }
 
         // Check if any of our new holes intersect with our polygon
@@ -534,6 +553,7 @@ public class Circles {
                     newPolygonPointsGreen = subtractCircleNew(newPolygonPointsGreen, mHoles.get(i), context);
                     // Store hole to remove from mHoles later
                     holesToRemove.add(mHoles.get(i));
+                    System.out.println(mHoles.get(i).size());
                     break;
                 }
             }
@@ -580,6 +600,21 @@ public class Circles {
         return mPolygonPointsGreen;
     }
 
+    private static void combineHoles() {
+        for (int i = mHoles.size() - 1, j = 0; i > 0; i--) {
+            for (LatLng latLng : mHoles.get(i)) {
+                if (PolyUtil.containsLocation(latLng, mHoles.get(i - 1), true)) {
+                    mHoles.set(i - 1, combinePolygonGreen(mHoles.get(i - 1), mHoles.get(i), true));
+                    //holeToRemove[j] = i;
+                    mHoles.remove(i);
+                    // Recursivly combine holes
+                    combineHoles();
+                    i--;
+                    break;
+                }
+            }
+        }
+    }
 
 
     private static ArrayList<LatLng> createNewGreenCircle(GoogleMap gmap, Location center, PolygonOptions polygonOptionsNew, int resolution) {
@@ -1040,8 +1075,7 @@ public class Circles {
 
         // Remove from database
         myDb.removeAllHoles();
-        myDb.removePolygons();
-        myDb.removeAllHoles();
+        myDb.removePolygons();;
         myDb.close();
     }
 
@@ -1067,23 +1101,6 @@ public class Circles {
             myDb.addHole("Temp Hole" + i ,mHoles.get(i));
         }
         myDb.close();
-
-        /*if (mCirclePointsHole1.size() >0) {
-            myDb.addHole("Temp Hole1", mCirclePointsHole1, context);
-        }
-        if (mCirclePointsHole2.size() >0) {
-            myDb.addHole("Temp Hole2", mCirclePointsHole2, context);
-        }
-        if (mCirclePointsHole3.size() >0) {
-            myDb.addHole("Temp Hole3", mCirclePointsHole3, context);
-        }
-        if (mCirclePointsHole4.size() >0) {
-            myDb.addHole("Temp Hole4", mCirclePointsHole4, context);
-        }
-        if (mCirclePointsHole5.size() >0) {
-            myDb.addHole("Temp Hole5", mCirclePointsHole5, context);
-        }
-        myDb.close();*/
     }
 
 }
