@@ -45,7 +45,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         super(context, DATABASE_NAME, null, 1);
     }
 
-    private static DatabaseHelper getInstance(Context ctx) {
+    public static DatabaseHelper getInstance(Context ctx) {
 
         // Use the application context, which will ensure that you
         // don't accidentally leak an Activity's context.
