@@ -194,8 +194,10 @@ public class Circles {
 
         if (mPolygonPointsGreen.size() > 0) {
             polygonOptionsNew.addAll(mPolygonPointsGreen);
-            for (ArrayList<LatLng> hole : mHoles) {
-                polygonOptionsNew.addHole(hole);
+            if (mHoles.size() > 0) {
+                for (ArrayList<LatLng> hole : mHoles) {
+                    polygonOptionsNew.addHole(hole);
+                }
             }
             Polygon polygon = gmap.addPolygon(polygonOptionsNew);
             mPolygonsToClear.add(polygon);
@@ -539,7 +541,7 @@ public class Circles {
 
     public static void savePolygonToDB(Context context) {
         DatabaseHelper myDb = DatabaseHelper.getInstance(context);
-        myDb.addPolygon("Temp Polygon1", mPolygonPointsGreen, context);
+        myDb.addPolygon("Temp Polygon1", mPolygonPointsGreen);
         myDb.close();
     }
 
@@ -547,12 +549,9 @@ public class Circles {
         DatabaseHelper myDb = DatabaseHelper.getInstance(context);
         myDb.removeAllHoles();
 
-        myDb.addHole("Temp Hole1", mHoles.get(0));
-
-        /*for (int i = 0 ; i < mHoles.size() ; i++) {
-            myDb.addHole("'Temp Hole" + i + "'" ,mHoles.get(i));
-            System.out.println("Hole added");
-        }*/
+        for (int i = 0 ; i < mHoles.size() ; i++) {
+            myDb.addHole("Temp Hole" + (i + 1), mHoles.get(i));
+        }
         myDb.close();
     }
 }
