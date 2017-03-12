@@ -101,46 +101,73 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
     public ArrayList<ArrayList<LatLng>> getAllHoles() {
+        System.out.println("Getting holes...");
         ArrayList<ArrayList<LatLng>> holes = new ArrayList<>();
         SQLiteDatabase db = this.getReadableDatabase();
+        String type = "'Temp Hole1'";
 
+        System.out.println("Getting hole #: ");
+        String sql = "SELECT * FROM " + TABLE_NAME + " WHERE TYPE = " + type + ";";
+        Cursor cursor = db.rawQuery(sql, null);
+        ArrayList<LatLng> hole = new ArrayList<>();
 
-        boolean hasHoles = true;
-        int count = 1;
+        while (cursor.moveToNext()) {
+            double latitude = cursor.getDouble(2);
+            double longitude = cursor.getDouble(3);
 
-        while (hasHoles) {
-            String sql = "SELECT * FROM " + TABLE_NAME + " WHERE TYPE = 'TEMP HOLE" + count + "';";
-            Cursor cursor = db.rawQuery(sql, null);
-            if (cursor == null) {
-                hasHoles = false;
-                return holes;
-            } else {
-                ArrayList<LatLng> hole = new ArrayList<>();
-
-                while (cursor.moveToNext()) {
-                    double latitude = cursor.getDouble(2);
-                    double longitude  = cursor.getDouble(3);
-
-                    hole.add(new LatLng(latitude, longitude));
-                }
-                holes.add(hole);
-                hasHoles = false;
-            }
-            count++;
-            cursor.close();
+            hole.add(new LatLng(latitude, longitude));
         }
+        holes.add(hole);
+        cursor.close();
+        /*if (hole.size() > 0) {
+            System.out.println("Got hole");
+            holes.add(hole);
+        }*/
+
+        /*int count = 1;
+
+        for (int i = 0 ; i <= count ; i++) {
+            System.out.println("Getting hole #: " + i);
+            String sql = "SELECT * FROM " + TABLE_NAME + " WHERE TYPE = 'Temp Hole1';";
+            Cursor cursor = db.rawQuery(sql, null);
+            ArrayList<LatLng> hole = new ArrayList<>();
+
+            while (cursor.moveToNext()) {
+                double latitude = cursor.getDouble(2);
+                double longitude = cursor.getDouble(3);
+
+                hole.add(new LatLng(latitude, longitude));
+            }
+            cursor.close();
+            if (hole.size() > 0) {
+                System.out.println("Got hole");
+                holes.add(hole);
+            }
+        }*/
+
         return holes;
     }
 
 
     public void addHole(String type, ArrayList<LatLng> holePoints) {
-        removeAllHoles();
+        /*removePolygons();
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.beginTransaction();
+        for (LatLng latLng : polygonPoints){
+            ContentValues contentValues = new ContentValues();
+            contentValues.put(COL_2, type);
+            contentValues.put(COL_3, latLng.latitude);
+            contentValues.put(COL_4, latLng.longitude);
+            db.insert(TABLE_NAME, null, contentValues);
+        }
+        db.setTransactionSuccessful();
+        db.endTransaction();
+        db.close();*/
         SQLiteDatabase db = this.getWritableDatabase();
         db.beginTransaction();
 
         for (LatLng latLng : holePoints){
             ContentValues contentValues = new ContentValues();
-            //contentValues.put(COL_2, "'" + type + "'");
             contentValues.put(COL_2, type);
             contentValues.put(COL_3, latLng.latitude);
             contentValues.put(COL_4, latLng.longitude);

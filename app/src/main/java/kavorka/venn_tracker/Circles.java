@@ -34,6 +34,7 @@ public class Circles {
         mPolygonPointsGreen.clear();
 
         DatabaseHelper myDb = DatabaseHelper.getInstance(context);
+        mHoles = myDb.getAllHoles();
         double latitude;
         double longitude;
         Cursor res = myDb.getAllLocations("Temp Polygon1");
@@ -54,6 +55,10 @@ public class Circles {
 
         if (mPolygonPointsGreen.size() > 0) {
             polygonOptionsGreen.addAll(mPolygonPointsGreen);
+
+            for (ArrayList<LatLng> hole : mHoles) {
+                polygonOptionsGreen.addHole(hole);
+            }
 
 
             Polygon polygon = gmap.addPolygon(polygonOptionsGreen);
@@ -542,9 +547,12 @@ public class Circles {
         DatabaseHelper myDb = DatabaseHelper.getInstance(context);
         myDb.removeAllHoles();
 
-        for (int i = 0 ; i < mHoles.size() ; i++) {
-            myDb.addHole("Temp Hole" + i ,mHoles.get(i));
-        }
+        myDb.addHole("Temp Hole1", mHoles.get(0));
+
+        /*for (int i = 0 ; i < mHoles.size() ; i++) {
+            myDb.addHole("'Temp Hole" + i + "'" ,mHoles.get(i));
+            System.out.println("Hole added");
+        }*/
         myDb.close();
     }
 }
