@@ -53,22 +53,15 @@ public class Circles {
         DatabaseHelper myDb = DatabaseHelper.getInstance(context);
         double latitude;
         double longitude;
-        String type;
-        Cursor res = myDb.getAllLocations();
+        Cursor res = myDb.getAllLocations("Temp Polygon1");
 
         // For each saved polygon
         // Get the latitude and longitude and put them into a location
         while (res.moveToNext()) {
-            type = res.getString(1);
             latitude = res.getDouble(2);
             longitude = res.getDouble(3);
-
-
-
-            if (type.equals("Temp Polygon1")) {
-                LatLng latLng = new LatLng(latitude, longitude);
-                mPolygonPointsGreen.add(latLng);
-            }
+            LatLng latLng = new LatLng(latitude, longitude);
+            mPolygonPointsGreen.add(latLng);
         }
 
         PolygonOptions polygonOptionsGreen = new PolygonOptions()
@@ -86,6 +79,7 @@ public class Circles {
                 SpawnLocation.markerInCircle(mPolygonPointsGreen);
             }
         }
+        res.close();
         return mPolygonPointsGreen;
     }
 
