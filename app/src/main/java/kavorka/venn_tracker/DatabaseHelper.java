@@ -30,22 +30,22 @@ import java.io.InputStream;
 import java.util.ArrayList;
 
 public class DatabaseHelper extends SQLiteOpenHelper {
-    public static final String DATABASE_NAME = "locations.db";
-    public static final String TABLE_NAME = "location_table";
-    public static final String COL_1 = "id";
-    public static final String COL_2 = "type";
-    public static final String COL_3 = "latitude";
-    public static final String COL_4 = "longitude";
-    public static final String COL_5 = "time";
-    public static final String COL_6 = "notes";
+    private static final String DATABASE_NAME = "locations.db";
+    private static final String TABLE_NAME = "location_table";
+    private static final String COL_1 = "id";
+    private static final String COL_2 = "type";
+    private static final String COL_3 = "latitude";
+    private static final String COL_4 = "longitude";
+    private static final String COL_5 = "time";
+    private static final String COL_6 = "notes";
     private static DatabaseHelper mInstance = null;
 
 
-    public DatabaseHelper(Context context) {
+    private DatabaseHelper(Context context) {
         super(context, DATABASE_NAME, null, 1);
     }
 
-    public static DatabaseHelper getInstance(Context ctx) {
+    private static DatabaseHelper getInstance(Context ctx) {
 
         // Use the application context, which will ensure that you
         // don't accidentally leak an Activity's context.
@@ -388,7 +388,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     }
 
-    public String loadJSON(File file) {
+    private String loadJSON(File file) {
         String json = null;
         try {
 
@@ -413,7 +413,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     }
 
-    public void importJSONData(File file, Context context) {
+    private void importJSONData(File file, Context context) {
         SQLiteDatabase db = this.getWritableDatabase();
 
         int importCount = 0;
@@ -533,5 +533,3 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
 }
-
-
