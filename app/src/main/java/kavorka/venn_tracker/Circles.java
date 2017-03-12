@@ -15,6 +15,7 @@ import com.google.maps.android.PolyUtil;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 
 public class Circles {
@@ -57,7 +58,6 @@ public class Circles {
         double longitude;
         String type;
         Cursor res = myDb.getAllLocations();
-        ArrayList<LatLng> hole = new ArrayList<>();
 
         // For each saved polygon
         // Get the latitude and longitude and put them into a location
@@ -72,28 +72,6 @@ public class Circles {
                 LatLng latLng = new LatLng(latitude, longitude);
                 mPolygonPointsGreen.add(latLng);
             }
-            else if (type.equals("Temp Hole1")) {
-                LatLng latLng = new LatLng(latitude, longitude);
-                mCirclePointsHole1.add(latLng);
-                hole.add(latLng);
-            }
-            else if (type.equals("Temp Hole2")) {
-                LatLng latLng = new LatLng(latitude, longitude);
-                mCirclePointsHole2.add(latLng);
-            }
-            else if (type.equals("Temp Hole3")) {
-                LatLng latLng = new LatLng(latitude, longitude);
-                mCirclePointsHole3.add(latLng);
-            }
-            else if (type.equals("Temp Hole4")) {
-                LatLng latLng = new LatLng(latitude, longitude);
-                mCirclePointsHole4.add(latLng);
-            }
-            else if (type.equals("Temp Hole5")) {
-                LatLng latLng = new LatLng(latitude, longitude);
-                mCirclePointsHole5.add(latLng);
-            }
-            mHoles.add(hole);
         }
 
         PolygonOptions polygonOptionsGreen = new PolygonOptions()
@@ -103,22 +81,6 @@ public class Circles {
 
         if (mPolygonPointsGreen.size() > 0) {
             polygonOptionsGreen.addAll(mPolygonPointsGreen);
-
-            if (mCirclePointsHole1.size() > 0) {
-                polygonOptionsGreen.addHole(mCirclePointsHole1);
-            }
-            if (mCirclePointsHole2.size() > 0) {
-                polygonOptionsGreen.addHole(mCirclePointsHole2);
-            }
-            if (mCirclePointsHole3.size() > 0) {
-                polygonOptionsGreen.addHole(mCirclePointsHole3);
-            }
-            if (mCirclePointsHole4.size() > 0) {
-                polygonOptionsGreen.addHole(mCirclePointsHole4);
-            }
-            if (mCirclePointsHole5.size() > 0) {
-                polygonOptionsGreen.addHole(mCirclePointsHole5);
-            }
 
 
             Polygon polygon = gmap.addPolygon(polygonOptionsGreen);
@@ -444,7 +406,7 @@ public class Circles {
                 mHoles.add(circlePointsHoleNew);
             }
             if (mHoles.size() > 1) {
-                combineHoles();
+                mHoles = combineHoles(mHoles);
             }
 
             /*// Check which holes our new hole intersects with so we know how to combine it.
@@ -603,20 +565,25 @@ public class Circles {
         return mPolygonPointsGreen;
     }
 
-    private static void combineHoles() {
-        for (int i = mHoles.size() - 1, j = 0; i > 0; i--) {
-            for (LatLng latLng : mHoles.get(i)) {
-                if (PolyUtil.containsLocation(latLng, mHoles.get(i - 1), true)) {
-                    mHoles.set(i - 1, combinePolygonGreen(mHoles.get(i - 1), mHoles.get(i), true));
-                    //holeToRemove[j] = i;
-                    mHoles.remove(i);
-                    // Recursivly combine holes
-                    combineHoles();
-                    i--;
-                    break;
+    private static ArrayList<ArrayList<LatLng>> combineHoles(ArrayList<ArrayList<LatLng>> holes) {
+        // Loop from last element
+        // Each loop checks it against all other elements
+        for (int i = (holes.size() - 1); i > 0; i--) {
+            // loop from first element and combine checked element from above loop
+            for (int j = 0 ; j < i ; j ++) {
+                // Check to see if any point in j falls within i
+                for (LatLng latLng : holes.get(i)) {
+                    // If it does, combine i to j and delete i
+                    if (PolyUtil.containsLocation(latLng, holes.get(j), true)) {
+                        holes.set(j, combinePolygonGreen(holes.get(j), holes.get(i), true));
+                        holes.remove(i);
+                        // Recursivly run algorithm until no holes intersect
+                        return combineHoles(holes);
+                    }
                 }
             }
         }
+        return holes;
     }
 
 
@@ -644,7 +611,7 @@ public class Circles {
         return mPolygonPointsGreen;
     }
 
-    public static ArrayList<LatLng> combinePolygonGreen(ArrayList<LatLng> polygon1, ArrayList<LatLng> polygon2, boolean hole) {
+    private static ArrayList<LatLng> combinePolygonGreen(ArrayList<LatLng> polygon1, ArrayList<LatLng> polygon2, boolean hole) {
 
         ArrayList<LatLng> newCirclePointsGreen = new ArrayList<>();
         ArrayList<LatLng> greenIntersection1 = new ArrayList<>();
@@ -1098,14 +1065,11 @@ public class Circles {
 
     public static void saveHolesToDB(Context context) {
         DatabaseHelper myDb = DatabaseHelper.getInstance(context);
+        myDb.removeAllHoles();
 
-        if (mHoles.size() > 0) {
-            myDb.addHole("Temp Hole1", mHoles.get(0));
-        }
-
-        /*for (int i = 0 ; i < mHoles.size() ; i++) {
+        for (int i = 0 ; i < mHoles.size() ; i++) {
             myDb.addHole("Temp Hole" + i ,mHoles.get(i));
-        }*/
+        }
         myDb.close();
     }
 
