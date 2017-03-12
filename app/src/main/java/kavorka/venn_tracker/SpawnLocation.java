@@ -70,7 +70,7 @@ public class SpawnLocation {
 
     }
 
-    public static void showSpawnLocations(GoogleMap googleMap, LatLng latLng, String description) {
+    private static void showSpawnLocations(GoogleMap googleMap, LatLng latLng, String description) {
             Marker marker = googleMap.addMarker(new MarkerOptions().position(latLng));
             marker.setSnippet(description);
             mSpawnPoints.add(marker);
@@ -151,7 +151,7 @@ public class SpawnLocation {
     }
 
     // When marker is removed from map, also remove from db
-    public static void removeSpawnPointFromDb(Context context, Marker marker) {
+    private static void removeSpawnPointFromDb(Context context, Marker marker) {
         DatabaseHelper myDb = DatabaseHelper.getInstance(context);
         double latitude = marker.getPosition().latitude;;
         double longitude = marker.getPosition().longitude;;
@@ -211,7 +211,7 @@ public class SpawnLocation {
         mSpawnPointsNotInCircle.clear();
     }
 
-    public static void markerTransparency() {
+    private static void markerTransparency() {
         for( Marker marker : mSpawnPointsNotInCircle) {
             marker.setAlpha(0.2f);
         }
@@ -227,7 +227,7 @@ public class SpawnLocation {
         mSpawnPointsNotInCircle.clear();
     }
 
-    public static void resetMarkers() {
+    private static void resetMarkers() {
         mSpawnPoints.clear();
         mSpawnPointsNotInCircle.clear();
         mSpawnPointsInCircle.clear();
