@@ -6,7 +6,6 @@ import android.database.Cursor;
 import android.location.Location;
 
 import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.model.Circle;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Polygon;
 import com.google.android.gms.maps.model.PolygonOptions;
@@ -16,14 +15,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 
 public class Circles {
-    private static ArrayList<Circle> circlesToClear = new ArrayList<>();
     private static ArrayList<Polygon> mPolygonsToClear = new ArrayList<>();
     private static ArrayList<LatLng> mPolygonPointsGreen = new ArrayList<>();
-    private static ArrayList<LatLng> mCirclePointsHole1 = new ArrayList<>();
-    private static ArrayList<LatLng> mCirclePointsHole2 = new ArrayList<>();
-    private static ArrayList<LatLng> mCirclePointsHole3 = new ArrayList<>();
-    private static ArrayList<LatLng> mCirclePointsHole4 = new ArrayList<>();
-    private static ArrayList<LatLng> mCirclePointsHole5 = new ArrayList<>();
     private static ArrayList<ArrayList<LatLng>> mHoles = new ArrayList<>();
 
 
@@ -31,16 +24,6 @@ public class Circles {
     private static int mRedRadius = 200;
     private static int mHoleRadius = 40;
     private static boolean isGeoDisc = true;
-
-
-
-    // Clear all green and red circles
-    public static void clearCircles(Context context) {
-        for (Circle circle : circlesToClear) {
-            circle.remove();
-        }
-        SpawnLocation.markerResetTransparency();
-    }
 
 
     public static ArrayList<LatLng> loadAllPolygons(Context context, GoogleMap gmap, boolean transparency) {
@@ -193,12 +176,11 @@ public class Circles {
 
 
     private static ArrayList<LatLng> createNewGreenCircle(GoogleMap gmap, Location center, PolygonOptions polygonOptionsNew, int resolution) {
-        int circleResolution = resolution;
-        int circleHoleResolution = Math.round(resolution / 2);;
+        int circleHoleResolution = Math.round(resolution / 2);
 
-        mPolygonPointsGreen = getCirclePoints(mGreenRadius, center, circleResolution);
-        if (mCirclePointsHole1.size() == 0) {
-            mCirclePointsHole1 = getCirclePoints(mHoleRadius, center, circleHoleResolution);
+        mPolygonPointsGreen = getCirclePoints(mGreenRadius, center, resolution);
+        if (mHoles.size() == 0) {
+            mHoles.add(getCirclePoints(mHoleRadius, center, circleHoleResolution));
         }
 
         // Remove any polygons we currently have before drawing our new polygon
@@ -209,7 +191,9 @@ public class Circles {
 
         if (mPolygonPointsGreen.size() > 0) {
             polygonOptionsNew.addAll(mPolygonPointsGreen);
-            polygonOptionsNew.addHole(mCirclePointsHole1);
+            for (ArrayList<LatLng> hole : mHoles) {
+                polygonOptionsNew.addHole(hole);
+            }
             Polygon polygon = gmap.addPolygon(polygonOptionsNew);
             mPolygonsToClear.add(polygon);
         }
