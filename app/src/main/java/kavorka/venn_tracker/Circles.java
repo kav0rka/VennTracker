@@ -136,6 +136,8 @@ public class Circles {
             }
         }
 
+        // Subtract any holes that intersect with out new polygon
+        // Also remove them from mHoles
         newPolygonPointsGreen = subtractHoles(newPolygonPointsGreen, context);
 
 
@@ -319,9 +321,9 @@ public class Circles {
             return mPolygonPointsGreen;
         }
 
+        // Subtract any holes that intersect with out new polygon
+        // Also remove them from mHoles
         polygonPointsGreen = subtractHoles(polygonPointsGreen, context);
-
-
 
         // Remove any polygons we currently have before drawing our new polygon
         for (Polygon polygon : mPolygonsToClear) {
@@ -330,6 +332,7 @@ public class Circles {
         // Make sure we clear our green points before adding the new points
         mPolygonPointsGreen.clear();
 
+        // Add all remaning holes to our new polygon
         for (ArrayList<LatLng> hole : mHoles) {
             polygonOptionsNew.addHole(hole);
         }
@@ -377,8 +380,6 @@ public class Circles {
 
         // Reorder both polygons so they get added correctly
         polygonGreen = reorderPolygon(polygonGreen, endIndex1);
-        //endIndex2 = getLastIndexRed(polygonGreen, polygonSubtract, endIndex1);
-        //polygonSubtract = reorderPolygon(polygonSubtract, endIndex2);
 
         // Find the new line where the points of our subtraction circle are within our green circle
         for (LatLng latLng : polygonSubtract) {
@@ -425,7 +426,7 @@ public class Circles {
 
 
 
-    public static ArrayList<LatLng> reverseIfNeeded(ArrayList<LatLng> checkAgainst, ArrayList<LatLng> listToReverse) {
+    private static ArrayList<LatLng> reverseIfNeeded(ArrayList<LatLng> checkAgainst, ArrayList<LatLng> listToReverse) {
         if (checkAgainst.size() < 2 || listToReverse.size() < 2) {
             return listToReverse;
         }
@@ -443,7 +444,7 @@ public class Circles {
         return listToReverse;
     }
 
-    public static int getLastIndex(ArrayList<LatLng> circlePoints, ArrayList<LatLng> checkAgainst) {
+    private static int getLastIndex(ArrayList<LatLng> circlePoints, ArrayList<LatLng> checkAgainst) {
         int endIndex = 0;
         boolean stopChecking = false;
         for (LatLng latLng : circlePoints) {
@@ -460,7 +461,7 @@ public class Circles {
         return endIndex;
     }
 
-    public static int getLastIndexRed(ArrayList<LatLng> pointsGreen,ArrayList<LatLng> newPointsRed, int greenIndex) {
+    private static int getLastIndexRed(ArrayList<LatLng> pointsGreen,ArrayList<LatLng> newPointsRed, int greenIndex) {
         int lastIndex = 0;
         double latitudeGreen = pointsGreen.get(0).latitude;
         double longitudeGreen = pointsGreen.get(0).longitude;
@@ -485,7 +486,7 @@ public class Circles {
     }
 
 
-    public static ArrayList<LatLng> reorderPolygon (ArrayList<LatLng> polygonToSort, int indexLast){
+    private static ArrayList<LatLng> reorderPolygon (ArrayList<LatLng> polygonToSort, int indexLast){
         ArrayList<LatLng> firstList = new ArrayList<>();
         ArrayList<LatLng> lastList = new ArrayList<>();
         ArrayList<LatLng> newList = new ArrayList<>();
@@ -503,7 +504,7 @@ public class Circles {
         return newList;
     }
 
-    public static ArrayList<LatLng> getCirclePoints(int radius, Location center, int resolution) {
+    private static ArrayList<LatLng> getCirclePoints(int radius, Location center, int resolution) {
         ArrayList<LatLng> circlePoints = new ArrayList<>();
         final double EARTH_RADIUS = 6378100.0;
         double slice = 2 * Math.PI / resolution;
@@ -570,5 +571,4 @@ public class Circles {
         }
         myDb.close();
     }
-
 }
