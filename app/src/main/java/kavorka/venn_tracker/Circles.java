@@ -86,8 +86,6 @@ public class Circles {
         ArrayList<LatLng> newPolygonPointsGreen = combinePolygonGreen(mPolygonPointsGreen, newCircle, false);
 
 
-        boolean combineHoles = false;
-
         if (mHoles.size() == 0) {
             ArrayList<LatLng> hole = getCirclePoints(mHoleRadius, center, resolution);
             mHoles.add(hole);
