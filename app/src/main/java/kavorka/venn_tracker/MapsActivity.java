@@ -678,7 +678,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     public void showMenu(View v) {
         PopupMenu popup = new PopupMenu(MapsActivity.this, v);
 
-        // This activity implements OnMenuItemClickListener
         popup.setOnMenuItemClickListener(MapsActivity.this);
         popup.inflate(R.menu.activity_main);
         popup.show();
