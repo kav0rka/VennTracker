@@ -93,7 +93,7 @@ public class SpawnLocation {
     // Loops through database, loads and shows all markers that have been saved.
     public static int loadAllSpawnPoints(Context context, GoogleMap googleMap, Location myLocation,
                                          Boolean loadDistance, int spawnDistance, Boolean transparency) {
-        resetMarkers(context);
+        resetMarkers();
         DatabaseHelper myDb = DatabaseHelper.getInstance(context);
         double latitude;
         double longitude;
@@ -227,12 +227,11 @@ public class SpawnLocation {
         mSpawnPointsNotInCircle.clear();
     }
 
-    public static void resetMarkers(Context context) {
+    public static void resetMarkers() {
         mSpawnPoints.clear();
         mSpawnPointsNotInCircle.clear();
         mSpawnPointsInCircle.clear();
         mMarkerVisibility = true;
-        Circles.clearCircles(context);
     }
 
     public static void hideAllMarkerWindows() {
