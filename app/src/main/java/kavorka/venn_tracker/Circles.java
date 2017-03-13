@@ -95,22 +95,17 @@ public class Circles {
             ArrayList<LatLng> hole = getCirclePoints(mHoleRadius, center, resolution);
             mHoles.add(hole);
         } else {
-            ArrayList<LatLng> circlePointsHoleNew;
-            circlePointsHoleNew = getCirclePoints(mHoleRadius, center, resolution);
+            // Add new hole
+            mHoles.add(getCirclePoints(mHoleRadius, center, resolution));
 
-            boolean holeOutside = false;
-            for (LatLng latLng : circlePointsHoleNew) {
-                if (!PolyUtil.containsLocation(latLng, newPolygonPointsGreen, isGeoDisc)) {
-                    holeOutside = true;
-                }
-                else {
-                    holeOutside = false;
-                    break;
+
+            // Check if any hole fall completely outside of our polygon, if so remove it
+            for (int i = mHoles.size() -1 ; i >= 0 ; i--) {
+                if (isOutside(mHoles.get(i), newPolygonPointsGreen)) {
+                    mHoles.remove(i);
                 }
             }
-            if (!holeOutside) {
-                mHoles.add(circlePointsHoleNew);
-            }
+            // If we have more than 1 hole, check if any interect.  If so, combine them
             if (mHoles.size() > 1) {
                 mHoles = combineHoles(mHoles);
             }
@@ -537,6 +532,19 @@ public class Circles {
 
     public static ArrayList<ArrayList<LatLng>> getHoles() {
         return mHoles;
+    }
+
+    private static boolean isOutside(ArrayList<LatLng> hole, ArrayList<LatLng> polygon) {
+        boolean isOutside = false;
+        for (LatLng latLng : hole) {
+            if (!PolyUtil.containsLocation(latLng, polygon, isGeoDisc)) {
+                isOutside = true;
+            }
+            else {
+                return false;
+            }
+        }
+        return isOutside;
     }
 
     public static void savePolygonToDB(Context context) {
