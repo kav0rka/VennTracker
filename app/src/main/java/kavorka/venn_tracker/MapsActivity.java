@@ -746,6 +746,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             case R.id.delete_spawn_locations:
                 SpawnLocation.removeAllSpawnPointFromDb(MapsActivity.this);
                 mMap.clear();
+                Circles.loadAllPolygons(MapsActivity.this, mMap, mMarkerTransparency);
                 break;
         }
         myDb.close();
@@ -1188,7 +1189,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             Circles.saveHolesToDB(MapsActivity.this);
             // TODO temp code
             LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
-            Circles.drawCircleRed(mMap, latLng);
+            Circles.drawCircleRed(latLng);
             Circles.saveRedCirclesToDb(mMap, MapsActivity.this);
             Circles.checkIntersecting(MapsActivity.this, mMap);
             if (mMarkerTransparency) {

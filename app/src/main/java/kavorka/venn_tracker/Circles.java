@@ -26,6 +26,7 @@ public class Circles {
     private static ArrayList<LatLng> mPolygonsRed =  new ArrayList<>();
     private static ArrayList<Circle> mPolygonsRedToClear =  new ArrayList<>();
     private static ArrayList<ArrayList<LatLng>> mHoles = new ArrayList<>();
+    private static ArrayList<LatLng> mIntersecting = new ArrayList<>();
 
 
     private static int mGreenRadius = 200;
@@ -90,14 +91,8 @@ public class Circles {
     }
 
     // TODO temp code
-    public static void drawCircleRed(GoogleMap gmap, LatLng latLng) {
-        CircleOptions circleOptions = new CircleOptions()
-                .strokeColor(Color.RED)
-                .radius(mRedRadius)
-                .center(latLng);
-        Circle circle = gmap.addCircle(circleOptions);
+    public static void drawCircleRed(LatLng latLng) {
         mPolygonsRed.add(latLng);
-        mPolygonsRedToClear.add(circle);
     }
 
     public static ArrayList<LatLng> drawPolygonGreen(GoogleMap gmap, Location center, Context context, int resolution) {
@@ -394,10 +389,8 @@ public class Circles {
                     circle2Center.setLongitude(circle2.longitude);
                     // Create new circles that are slightly larger than the circle we are subtracting with
                     // This will ensure that our intersections fall within our green polygon
-                    ArrayList<LatLng> newCircle1 = getCirclePoints(mRedRadius + 2, circle1Center, 360);
-                    ArrayList<LatLng> newCircle2 = getCirclePoints(mRedRadius + 2, circle2Center, 360);
-                    // New array to store our intersections
-                    ArrayList<LatLng> intersections = new ArrayList<>();
+                    ArrayList<LatLng> newCircle1 = getCirclePoints(mRedRadius + 4, circle1Center, 360);
+                    ArrayList<LatLng> newCircle2 = getCirclePoints(mRedRadius + 4, circle2Center, 360);
 
                     /*
                      * Find all points on our circles that intersect with a margin of error
@@ -405,16 +398,16 @@ public class Circles {
                      * This will leave us with some false positives that we remove with simplifyIntersections()
                      */
                     for (LatLng latLng : newCircle1) {
-                        if (PolyUtil.isLocationOnEdge(latLng, newCircle2, isGeoDisc, 3)) {
-                            if (PolyUtil.containsLocation(latLng, mPolygonPointsGreen, isGeoDisc)) {
-                                intersections.add(latLng);
+                        if (PolyUtil.containsLocation(latLng, mPolygonPointsGreen, isGeoDisc)) {
+                            if (PolyUtil.isLocationOnEdge(latLng, newCircle2, isGeoDisc, 4)) {
+                                mIntersecting.add(latLng);
                             }
                         }
                     }
                     // Simplify intersections, we should only have 0, 1, or 2 intersections possible
-                    intersections = simplifyIntersections(intersections);
-                    if (intersections.size() > 0) {
-                        for (LatLng latLng : intersections) {
+                    mIntersecting = simplifyIntersections(mIntersecting);
+                    if (mIntersecting.size() > 0) {
+                        for (LatLng latLng : mIntersecting) {
                             SpawnLocation.setSpawnPoint(context, gMap, latLng);
                         }
                     }
@@ -428,12 +421,14 @@ public class Circles {
      * We want to remove any points within 10 meters of each other so we only have 1 or 2 intersections
      * This will get us the closest to our true intersections without running complicated trigonometry
      */
+
+    // leave m intersecting but do calculations on intersecting and pass it into simplify
     private static ArrayList<LatLng> simplifyIntersections(ArrayList<LatLng> intersections) {
         // If the size is 1, no need to check anything
         if (intersections.size() > 1) {
             // Loop from the end so we can remove a without an error
-            for (int a = intersections.size() - 1 ; a > 1 ; a--) {
-                for (int b = 0 ; b < intersections.size() ; b++) {
+            for (int a = intersections.size() - 1; a > 0; a--) {
+                for (int b = 0; b < intersections.size(); b++) {
                     // don't check itself
                     if (a == b) {
                         continue;
@@ -446,9 +441,9 @@ public class Circles {
                             intersections.get(b).latitude,
                             intersections.get(b).longitude,
                             distanceIntersections);
-                    // Our margin of error is 5 meters
+                    // Our margin of error is 20 meters
                     //This isn't perfect but it will get us a close enough solution
-                    if (distanceIntersections[0] < 5) {
+                    if (distanceIntersections[0] < 20) {
                         // Too close, remove it
                         intersections.remove(a);
                         if (intersections.size() > 1) {
@@ -656,6 +651,7 @@ public class Circles {
         for (Circle circle : mPolygonsRedToClear) {
             circle.remove();
         }
+        mIntersecting.clear();
         mPolygonsRedToClear.clear();
         mPolygonsRed.clear();
         // Clear ArrayList holding polygons
