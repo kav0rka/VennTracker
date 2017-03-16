@@ -10,6 +10,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.graphics.PixelFormat;
 import android.location.Location;
 import android.net.Uri;
@@ -52,6 +53,8 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.CameraPosition;
+import com.google.android.gms.maps.model.Circle;
+import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 
@@ -1164,13 +1167,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         int resolution = 90;
         switch (circleResolution) {
             case 0:
-                resolution = 60;
-                break;
-            case 1:
                 resolution = 90;
                 break;
-            case 2:
+            case 1:
                 resolution = 120;
+                break;
+            case 2:
+                resolution = 180;
                 break;
         }
         return resolution;
@@ -1181,8 +1184,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
 
         if (mPolygonPointsGreen.size() >0) {
-            Circles.savePolygonToDB(MapsActivity.this);
+            Circles.savePolygonToDB("Temp Polygon1", mPolygonPointsGreen, MapsActivity.this);
             Circles.saveHolesToDB(MapsActivity.this);
+            // TODO temp code
+            LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
+            Circles.drawCircleRed(mMap, latLng);
+            Circles.saveRedCirclesToDb(mMap, MapsActivity.this);
+            Circles.checkIntersecting(MapsActivity.this, mMap);
             if (mMarkerTransparency) {
                 SpawnLocation.markerInCircle(mPolygonPointsGreen);
             }
@@ -1195,7 +1203,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mPolygonPointsGreen = Circles.drawPolygonGreen(mMap, location, MapsActivity.this, mCircleResolution);
 
 
-        Circles.savePolygonToDB(MapsActivity.this);
+        Circles.savePolygonToDB("Temp Polygon1", mPolygonPointsGreen, MapsActivity.this);
         Circles.saveHolesToDB(MapsActivity.this);
 
         if (mMarkerTransparency) {

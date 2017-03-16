@@ -3,10 +3,16 @@ package kavorka.venn_tracker;
 
 import android.content.Context;
 import android.database.Cursor;
+import android.graphics.Color;
 import android.location.Location;
+import android.widget.Toast;
 
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.model.Circle;
+import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polygon;
 import com.google.android.gms.maps.model.PolygonOptions;
 import com.google.maps.android.PolyUtil;
@@ -17,6 +23,8 @@ import java.util.Collections;
 public class Circles {
     private static ArrayList<Polygon> mPolygonsToClear = new ArrayList<>();
     private static ArrayList<LatLng> mPolygonPointsGreen = new ArrayList<>();
+    private static ArrayList<LatLng> mPolygonsRed =  new ArrayList<>();
+    private static ArrayList<Circle> mPolygonsRedToClear =  new ArrayList<>();
     private static ArrayList<ArrayList<LatLng>> mHoles = new ArrayList<>();
 
 
@@ -25,16 +33,26 @@ public class Circles {
     private static int mHoleRadius = 40;
     private static boolean isGeoDisc = true;
 
+    public static ArrayList<LatLng> getPolygonsRed() {
+        return mPolygonsRed;
+    }
 
     public static ArrayList<LatLng> loadAllPolygons(Context context, GoogleMap gmap, boolean transparency) {
         for (Polygon polygon : mPolygonsToClear) {
             polygon.remove();
         }
+        for (Circle circle : mPolygonsRedToClear) {
+            circle.remove();
+        }
         mHoles.clear();
         mPolygonPointsGreen.clear();
+        mPolygonsRed.clear();
 
         DatabaseHelper myDb = DatabaseHelper.getInstance(context);
         mHoles = myDb.getAllHoles();
+        mPolygonsRed = myDb.getAllRedPolygons("Temp Polygon Red");
+
+        // TODO do above for green polygons as well
         double latitude;
         double longitude;
         Cursor res = myDb.getAllLocations("Temp Polygon1");
@@ -71,6 +89,17 @@ public class Circles {
         return mPolygonPointsGreen;
     }
 
+    // TODO temp code
+    public static void drawCircleRed(GoogleMap gmap, LatLng latLng) {
+        CircleOptions circleOptions = new CircleOptions()
+                .strokeColor(Color.RED)
+                .radius(mRedRadius)
+                .center(latLng);
+        Circle circle = gmap.addCircle(circleOptions);
+        mPolygonsRed.add(latLng);
+        mPolygonsRedToClear.add(circle);
+    }
+
     public static ArrayList<LatLng> drawPolygonGreen(GoogleMap gmap, Location center, Context context, int resolution) {
         PolygonOptions polygonOptionsNew = new PolygonOptions()
                 .fillColor(0x503EBD1B)
@@ -99,7 +128,7 @@ public class Circles {
             mHoles.add(getCirclePoints(mHoleRadius, center, resolution));
 
 
-            // Check if any hole fall completely outside of our polygon, if so remove it
+            // Check if any hole falls  completely outside of our polygon, if so remove it
             for (int i = mHoles.size() -1 ; i >= 0 ; i--) {
                 if (isOutside(mHoles.get(i), newPolygonPointsGreen)) {
                     mHoles.remove(i);
@@ -273,8 +302,12 @@ public class Circles {
                 .strokeColor(0x503EBD1B)
                 .geodesic(isGeoDisc);
 
+
+        // TODO if red circle falls outside of our green polygon, ignore
         // Get the points of our new circle
         ArrayList<LatLng> circleRed = getCirclePoints(mRedRadius, center, circleResolution);
+
+
 
         int countInRed = 0;
         for (LatLng latLng : mPolygonPointsGreen) {
@@ -303,6 +336,19 @@ public class Circles {
         // Also remove them from mHoles
         polygonPointsGreen = subtractHoles(polygonPointsGreen, context);
 
+        // Remove holes that fall completely within our red circle
+        for (int i = mHoles.size() - 1 ; i >= 0 ; i--) {
+            boolean isInside = true;
+            for (LatLng latLng : mHoles.get(i)) {
+                if (!PolyUtil.containsLocation(latLng, circleRed, isGeoDisc)) {
+                    isInside = false;
+                    break;
+                }
+            }
+            if (isInside) {
+                mHoles.remove(i);
+            }
+        }
         // Remove any polygons we currently have before drawing our new polygon
         for (Polygon polygon : mPolygonsToClear) {
             polygon.remove();
@@ -325,6 +371,104 @@ public class Circles {
         mPolygonsToClear.add(polygon);
 
         return mPolygonPointsGreen;
+    }
+
+    public static void checkIntersecting(Context context, GoogleMap gMap) {
+        for (int i = 0 ; i < mPolygonsRed.size() - 1 ; i++) {
+            for (int j = 0; j < mPolygonsRed.size(); j++) {
+                if (i == j) {
+                    continue;
+                }
+
+                float[] distance = new float[2];
+                LatLng circle1 = mPolygonsRed.get(i);
+                LatLng circle2 = mPolygonsRed.get(i + 1);
+                Location.distanceBetween(circle1.latitude, circle1.longitude, circle2.latitude, circle2.longitude, distance);
+
+                if (distance[0] < mRedRadius * 2) {
+                    Location circle1Center = new Location("");
+                    Location circle2Center = new Location("");
+                    circle1Center.setLatitude(circle1.latitude);
+                    circle1Center.setLongitude(circle1.longitude);
+                    circle2Center.setLatitude(circle2.latitude);
+                    circle2Center.setLongitude(circle2.longitude);
+                    // Create new circles that are slightly larger than the circle we are subtracting with
+                    // This will ensure that our intersections fall within our green polygon
+                    ArrayList<LatLng> newCircle1 = getCirclePoints(mRedRadius + 2, circle1Center, 360);
+                    ArrayList<LatLng> newCircle2 = getCirclePoints(mRedRadius + 2, circle2Center, 360);
+                    // New array to store our intersections
+                    ArrayList<LatLng> intersections = new ArrayList<>();
+
+                    /*
+                     * Find all points on our circles that intersect with a margin of error
+                     * Save all of those points that fall within our green polygon in intersections
+                     * This will leave us with some false positives that we remove with simplifyIntersections()
+                     */
+                    for (LatLng latLng : newCircle1) {
+                        if (PolyUtil.isLocationOnEdge(latLng, newCircle2, isGeoDisc, 3)) {
+                            if (PolyUtil.containsLocation(latLng, mPolygonPointsGreen, isGeoDisc)) {
+                                intersections.add(latLng);
+                            }
+                        }
+                    }
+                    // Simplify intersections, we should only have 0, 1, or 2 intersections possible
+                    intersections = simplifyIntersections(intersections);
+                    if (intersections.size() > 0) {
+                        for (LatLng latLng : intersections) {
+                            SpawnLocation.setSpawnPoint(context, gMap, latLng);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    /*
+     * When we run checkIntersecting() we can get several points around each intersection
+     * We want to remove any points within 10 meters of each other so we only have 1 or 2 intersections
+     * This will get us the closest to our true intersections without running complicated trigonometry
+     */
+    private static ArrayList<LatLng> simplifyIntersections(ArrayList<LatLng> intersections) {
+        // If the size is 1, no need to check anything
+        if (intersections.size() > 1) {
+            // Loop from the end so we can remove a without an error
+            for (int a = intersections.size() - 1 ; a > 1 ; a--) {
+                for (int b = 0 ; b < intersections.size() ; b++) {
+                    // don't check itself
+                    if (a == b) {
+                        continue;
+                    }
+                    // Get the distance between the 2 points
+                    float[] distanceIntersections = new float[2];
+                    Location.distanceBetween(
+                            intersections.get(a).latitude,
+                            intersections.get(a).longitude,
+                            intersections.get(b).latitude,
+                            intersections.get(b).longitude,
+                            distanceIntersections);
+                    // Our margin of error is 5 meters
+                    //This isn't perfect but it will get us a close enough solution
+                    if (distanceIntersections[0] < 5) {
+                        // Too close, remove it
+                        intersections.remove(a);
+                        if (intersections.size() > 1) {
+                            // Recursivly remove locations
+                            return simplifyIntersections(intersections);
+                        }
+                    }
+                }
+            }
+        }
+        return intersections;
+    }
+
+    public static void saveRedCirclesToDb(GoogleMap gmap, Context context) {
+        DatabaseHelper myDb = DatabaseHelper.getInstance(context);
+        myDb.removeCircles();
+        for (int i = 0 ; i < mPolygonsRed.size() ; i++) {
+            myDb.addLocation("Temp Polygon Red", mPolygonsRed.get(i).latitude, mPolygonsRed.get(i).longitude, "");
+        }
+        myDb.close();
     }
 
     private static ArrayList<LatLng> subtractHoles(ArrayList<LatLng> polygonPointsGreen, Context context) {
@@ -509,6 +653,11 @@ public class Circles {
         for (Polygon polygon : mPolygonsToClear) {
             polygon.remove();
         }
+        for (Circle circle : mPolygonsRedToClear) {
+            circle.remove();
+        }
+        mPolygonsRedToClear.clear();
+        mPolygonsRed.clear();
         // Clear ArrayList holding polygons
         mPolygonsToClear.clear();
         // Clear ArrayList holding polygon point LatLng objects
@@ -522,7 +671,8 @@ public class Circles {
 
         // Remove from database
         myDb.removeAllHoles();
-        myDb.removePolygons();;
+        myDb.removePolygons();
+        myDb.removeCircles();
         myDb.close();
     }
 
@@ -547,9 +697,9 @@ public class Circles {
         return isOutside;
     }
 
-    public static void savePolygonToDB(Context context) {
+    public static void savePolygonToDB(String type, ArrayList<LatLng> polygon,  Context context) {
         DatabaseHelper myDb = DatabaseHelper.getInstance(context);
-        myDb.addPolygon("Temp Polygon1", mPolygonPointsGreen);
+        myDb.addPolygon(type, polygon);
         myDb.close();
     }
 
@@ -562,4 +712,6 @@ public class Circles {
         }
         myDb.close();
     }
+
+
 }

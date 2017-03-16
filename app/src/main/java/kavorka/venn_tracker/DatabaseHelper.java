@@ -8,6 +8,7 @@ import android.content.DialogInterface;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.location.Location;
 import android.os.Environment;
 import android.widget.Toast;
 
@@ -173,6 +174,16 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.close();
     }
 
+    public void removeCircles() {
+        SQLiteDatabase db = this.getWritableDatabase();
+        String sql = "DELETE FROM " + TABLE_NAME + " WHERE TYPE LIKE 'Temp Circle%';";
+        db.beginTransaction();
+        db.execSQL(sql);
+        db.setTransactionSuccessful();
+        db.endTransaction();
+        db.close();
+    }
+
 
     public void removeAllHoles() {
         SQLiteDatabase db = this.getWritableDatabase();
@@ -195,6 +206,17 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor res = db.rawQuery("select * from " + TABLE_NAME + " WHERE type = '" + type + "';", null);
         return res;
+    }
+
+    public ArrayList<LatLng> getAllRedPolygons(String type) {
+        ArrayList<LatLng> redPolygons = new ArrayList<>();
+
+        Cursor res = getAllLocations("Temp Polygon Red");
+        while(res.moveToNext()) {
+            LatLng latLng = new LatLng(res.getDouble(2), res.getDouble(3));
+            redPolygons.add(latLng);
+        }
+        return redPolygons;
     }
 
     public void deleteLocation(String id) {
