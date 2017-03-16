@@ -1190,7 +1190,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             // TODO temp code
             LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
             Circles.drawCircleRed(latLng);
-            Circles.saveRedCirclesToDb(mMap, MapsActivity.this);
+            Circles.saveRedCirclesToDb(MapsActivity.this);
             Circles.checkIntersecting(MapsActivity.this, mMap);
             if (mMarkerTransparency) {
                 SpawnLocation.markerInCircle(mPolygonPointsGreen);

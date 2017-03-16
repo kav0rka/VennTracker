@@ -8,6 +8,7 @@ import android.location.Location;
 import android.widget.Toast;
 
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.Circle;
 import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
@@ -27,12 +28,14 @@ public class Circles {
     private static ArrayList<Circle> mPolygonsRedToClear =  new ArrayList<>();
     private static ArrayList<ArrayList<LatLng>> mHoles = new ArrayList<>();
     private static ArrayList<LatLng> mIntersecting = new ArrayList<>();
+    private static ArrayList<Marker> mIntersectingToClear = new ArrayList<>();
 
 
     private static int mGreenRadius = 200;
     private static int mRedRadius = 200;
     private static int mHoleRadius = 40;
     private static boolean isGeoDisc = true;
+
 
     public static ArrayList<LatLng> getPolygonsRed() {
         return mPolygonsRed;
@@ -55,6 +58,9 @@ public class Circles {
         mHoles = myDb.getAllHoles();
         mPolygonsRed = myDb.getAllRedPolygons("Temp Polygon Red");
         mIntersecting = myDb.getIntersections();
+        for (LatLng latLng : mIntersecting) {
+            setIntersection(context, gmap, latLng);
+        }
 
         // TODO do above for green polygons as well
         double latitude;
@@ -413,7 +419,7 @@ public class Circles {
                         for (LatLng latLng : mIntersecting) {
                             setIntersection(context, gMap, latLng);
                         }
-
+                        Toast.makeText(context, "Narrowed down loaction of the Pokemon!", Toast.LENGTH_LONG).show();
                     }
                 }
             }
@@ -463,13 +469,14 @@ public class Circles {
 
     // Create marker at intersection
     private static void setIntersection(Context context, GoogleMap gMap, LatLng latLng) {
-        SpawnLocation.setSpawnPoint(context, gMap, latLng);
+        Marker marker = gMap.addMarker(new MarkerOptions().position(latLng).icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_arrow)));
+        mIntersectingToClear.add(marker);
         DatabaseHelper myDb = DatabaseHelper.getInstance(context);
         myDb.saveIntersections(mIntersecting);
         myDb.close();
     }
 
-    public static void saveRedCirclesToDb(GoogleMap gmap, Context context) {
+    public static void saveRedCirclesToDb(Context context) {
         DatabaseHelper myDb = DatabaseHelper.getInstance(context);
         myDb.removeCircles();
         for (int i = 0 ; i < mPolygonsRed.size() ; i++) {
@@ -663,7 +670,11 @@ public class Circles {
         for (Circle circle : mPolygonsRedToClear) {
             circle.remove();
         }
+        for (Marker marker : mIntersectingToClear) {
+            marker.remove();
+        }
         mIntersecting.clear();
+        mIntersectingToClear.clear();
         mPolygonsRedToClear.clear();
         mPolygonsRed.clear();
         // Clear ArrayList holding polygons
