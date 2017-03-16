@@ -45,13 +45,16 @@ public class Circles {
         for (Circle circle : mPolygonsRedToClear) {
             circle.remove();
         }
+        // TODO also clear markers for intersections before reloading
         mHoles.clear();
         mPolygonPointsGreen.clear();
         mPolygonsRed.clear();
+        mIntersecting.clear();
 
         DatabaseHelper myDb = DatabaseHelper.getInstance(context);
         mHoles = myDb.getAllHoles();
         mPolygonsRed = myDb.getAllRedPolygons("Temp Polygon Red");
+        mIntersecting = myDb.getIntersections();
 
         // TODO do above for green polygons as well
         double latitude;
@@ -408,8 +411,9 @@ public class Circles {
                     mIntersecting = simplifyIntersections(mIntersecting);
                     if (mIntersecting.size() > 0) {
                         for (LatLng latLng : mIntersecting) {
-                            SpawnLocation.setSpawnPoint(context, gMap, latLng);
+                            setIntersection(context, gMap, latLng);
                         }
+
                     }
                 }
             }
@@ -455,6 +459,14 @@ public class Circles {
             }
         }
         return intersections;
+    }
+
+    // Create marker at intersection
+    private static void setIntersection(Context context, GoogleMap gMap, LatLng latLng) {
+        SpawnLocation.setSpawnPoint(context, gMap, latLng);
+        DatabaseHelper myDb = DatabaseHelper.getInstance(context);
+        myDb.saveIntersections(mIntersecting);
+        myDb.close();
     }
 
     public static void saveRedCirclesToDb(GoogleMap gmap, Context context) {
@@ -669,6 +681,7 @@ public class Circles {
         myDb.removeAllHoles();
         myDb.removePolygons();
         myDb.removeCircles();
+        myDb.removeIntersections();
         myDb.close();
     }
 

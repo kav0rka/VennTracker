@@ -208,6 +208,43 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return res;
     }
 
+    public ArrayList<LatLng> getIntersections() {
+        ArrayList<LatLng> intersections= new ArrayList<>();
+
+        Cursor res = getAllLocations("Intersections");
+        while(res.moveToNext()) {
+            LatLng latLng = new LatLng(res.getDouble(2), res.getDouble(3));
+            intersections.add(latLng);
+        }
+        return intersections;
+    }
+
+    public void saveIntersections(ArrayList<LatLng> intersections) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.beginTransaction();
+
+        for (LatLng latLng : intersections){
+            ContentValues contentValues = new ContentValues();
+            contentValues.put(COL_2, "Intersections");
+            contentValues.put(COL_3, latLng.latitude);
+            contentValues.put(COL_4, latLng.longitude);
+            db.insert(TABLE_NAME, null, contentValues);
+        }
+        db.setTransactionSuccessful();
+        db.endTransaction();
+        db.close();
+    }
+
+    public void removeIntersections() {
+        SQLiteDatabase db = this.getWritableDatabase();
+        String sql = "DELETE FROM " + TABLE_NAME + " WHERE TYPE = 'Intersections';";
+        db.beginTransaction();
+        db.execSQL(sql);
+        db.setTransactionSuccessful();
+        db.endTransaction();
+        db.close();
+    }
+
     public ArrayList<LatLng> getAllRedPolygons(String type) {
         ArrayList<LatLng> redPolygons = new ArrayList<>();
 
