@@ -377,6 +377,21 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     addCircle(mLastLocation);
                 }
             });
+            // Scale button when pressed
+            mButtonCircleGreen.setOnTouchListener(new View.OnTouchListener() {
+                @Override
+                public boolean onTouch(View view, MotionEvent motionEvent) {
+                    if (motionEvent.getAction() == MotionEvent.ACTION_DOWN) {
+                        mButtonCircleGreen.setScaleX(1.25f);
+                        mButtonCircleGreen.setScaleY(1.25f);
+                    }
+                    if (motionEvent.getAction() == MotionEvent.ACTION_UP) {
+                        mButtonCircleGreen.setScaleX(1.0f);
+                        mButtonCircleGreen.setScaleY(1.0f);
+                    }
+                    return false;
+                }
+            });
 
             mButtonCircleRed.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -384,6 +399,21 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     // Update location prior to placing circle
                     getLocation();
                     subtractCircle(mLastLocation);
+                }
+            });
+            // Scale button when pressed
+            mButtonCircleRed.setOnTouchListener(new View.OnTouchListener() {
+                @Override
+                public boolean onTouch(View view, MotionEvent motionEvent) {
+                    if (motionEvent.getAction() == MotionEvent.ACTION_DOWN) {
+                        mButtonCircleRed.setScaleX(1.25f);
+                        mButtonCircleRed.setScaleY(1.25f);
+                    }
+                    if (motionEvent.getAction() == MotionEvent.ACTION_UP) {
+                        mButtonCircleRed.setScaleX(1.0f);
+                        mButtonCircleRed.setScaleY(1.0f);
+                    }
+                    return false;
                 }
             });
 
@@ -725,7 +755,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 canWrite = isStorageWritePermissionGranted();
                 if (canWrite) {
                     File downloadDir = new File(Environment.getExternalStorageDirectory().getAbsolutePath());
-                    //DatabaseHelper db = DatabaseHelper.getInstance(MapsActivity.this);
                     myDb.loadCsv(downloadDir, MapsActivity.this);
                     mMap.clear();
                     Circles.clearPolygons(MapsActivity.this);

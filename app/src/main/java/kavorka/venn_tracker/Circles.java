@@ -419,7 +419,7 @@ public class Circles {
                         for (LatLng latLng : mIntersecting) {
                             setIntersection(context, gMap, latLng);
                         }
-                        Toast.makeText(context, "Narrowed down loaction of the Pokemon!", Toast.LENGTH_LONG).show();
+                        Toast.makeText(context, "Narrowed down location of the Pokemon!", Toast.LENGTH_LONG).show();
                     }
                 }
             }
