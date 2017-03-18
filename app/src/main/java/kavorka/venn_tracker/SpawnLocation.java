@@ -3,15 +3,12 @@ package kavorka.venn_tracker;
 // Add user defined spawn locations
 
 import android.app.AlertDialog;
-import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.database.Cursor;
 import android.location.Location;
-import android.os.AsyncTask;
 
 import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.model.Circle;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
