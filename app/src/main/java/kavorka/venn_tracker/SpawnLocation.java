@@ -9,12 +9,14 @@ import android.database.Cursor;
 import android.location.Location;
 
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.maps.android.PolyUtil;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 
 public class SpawnLocation {
     private static ArrayList<Marker> mSpawnPoints = new ArrayList<>();
@@ -24,7 +26,7 @@ public class SpawnLocation {
 
     // Margin of error for distance +- from the circle boundary when making markers transparent
     private static int mDistanceErrorMargin = 15;
-
+    private static ArrayList<Marker> mSpawnPointTimes = new ArrayList<>();
 
 
     public static void setSpawnPoint(final Context context, final GoogleMap googleMap, final LatLng latLng){
@@ -44,6 +46,10 @@ public class SpawnLocation {
 
     public static ArrayList getSpawnPointsInCircle() {
         return mSpawnPointsInCircle;
+    }
+
+    public static ArrayList<Marker> getSawnPointTimes() {
+        return mSpawnPointTimes;
     }
 
     public static void removeSpawnPoint(final Context context, final Marker marker) {
@@ -67,10 +73,42 @@ public class SpawnLocation {
 
     }
 
-    private static void showSpawnLocations(GoogleMap googleMap, LatLng latLng, String description) {
-            Marker marker = googleMap.addMarker(new MarkerOptions().position(latLng));
-            marker.setSnippet(description);
-            mSpawnPoints.add(marker);
+    private static void showSpawnLocations(GoogleMap googleMap, LatLng latLng, String description, String time) {
+        Marker marker = googleMap.addMarker(new MarkerOptions().position(latLng));
+        marker.setSnippet(description);
+        marker.setTag(time + "");
+        marker.setIcon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE));
+        mSpawnPoints.add(marker);
+        if (marker.getTag() != "") {
+            mSpawnPointTimes.add(marker);
+        }
+    }
+
+    public static void checkSpawnTimes() {
+        Calendar c = Calendar.getInstance();
+        int currentTime = c.get(Calendar.MINUTE);
+        for (Marker marker : mSpawnPointTimes) {
+            boolean overlap = false;
+            int startTime = Integer.parseInt(marker.getTag().toString());
+            int endTime = startTime + 30;
+            if (endTime >= 60) {
+                overlap = true;
+                endTime -= 60;
+            }
+
+            if (!overlap && currentTime >= startTime && currentTime <= endTime) {
+                marker.setIcon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN));
+            }
+            else if (overlap && currentTime >= 30 && currentTime >= startTime && currentTime <= (startTime + 30)) {
+                marker.setIcon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN));
+            }
+            else if (overlap && currentTime < 30 && currentTime <= endTime) {
+                marker.setIcon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN));
+            }
+            else {
+                marker.setIcon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED));
+            }
+        }
     }
 
     public static void toggleMarkerVisibility() {
@@ -96,6 +134,7 @@ public class SpawnLocation {
         double longitude;
         double myLatitude;
         double myLongitude;
+        String time;
         String description;
         int count = 0;
         LatLng latLng;
@@ -119,6 +158,11 @@ public class SpawnLocation {
             float[] distance = new float[2];
             Location.distanceBetween(latitude, longitude, myLatitude,
                     myLongitude, distance);
+            if (res.getString(4) == null) {
+                time = "";
+            } else {
+                time = res.getString(4);
+            }
 
             if (res.getString(5) == null) {
                 description = "No Description";
@@ -128,12 +172,12 @@ public class SpawnLocation {
             if (loadDistance) {
                 if (distance[0] < spawnDistance) {
                     count++;
-                    showSpawnLocations(googleMap, latLng, description);
+                    showSpawnLocations(googleMap, latLng, description, time);
                 }
             }
             else {
                     count++;
-                    showSpawnLocations(googleMap, latLng, description);
+                    showSpawnLocations(googleMap, latLng, description, time);
                 }
         }
         myDb.close();

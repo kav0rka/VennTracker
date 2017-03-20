@@ -278,7 +278,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues cv = new ContentValues();
-        cv.put("notes", description);
+        cv.put(COL_6, description);
         db.update(TABLE_NAME, cv, sqlWhere, null);
         db.close();
     }
@@ -310,11 +310,17 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
 
-    public void addTime(String time) {
+    public void addTime(double latitude, double longitude, String time) {
+        // Find 'Spawn Location' for marker and save time
+        String sqlWhere = "TYPE = 'Spawn Location'" +
+                " AND latitude = " + latitude +
+                " AND longitude = " + longitude + ";";
+
         SQLiteDatabase db = this.getWritableDatabase();
-        ContentValues contentValues = new ContentValues();
-        contentValues.put(COL_5, time);
-        db.insert(TABLE_NAME, null, contentValues);
+        ContentValues cv = new ContentValues();
+        cv.put(COL_5, time);
+        db.update(TABLE_NAME, cv, sqlWhere, null);
+        db.close();
     }
 
     public void loadCsv(File dir, Context ctx) {

@@ -40,6 +40,7 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.support.v7.widget.PopupMenu;
 import android.widget.ImageView;
+import android.widget.NumberPicker;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
@@ -72,6 +73,7 @@ import android.graphics.BitmapFactory;
 
 
 import java.util.ArrayList;
+import java.util.Calendar;
 
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback,
@@ -146,6 +148,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private String mOverlayMapFormat;
     private String mOverlayMapStyle;
 
+    private Calendar mTime;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -190,7 +194,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         this.mInfoWindow = (ViewGroup)getLayoutInflater().inflate(R.layout.marker_window, null);
 
         // Initialize buttons for marker menu
-        //mButtonMarkerAddTime = (Button) mInfoWindow.findViewById(R.id.markerAddTime);
+        mButtonMarkerAddTime = (Button) mInfoWindow.findViewById(R.id.markerAddTime);
         mButtonMarkerDelete = (Button) mInfoWindow.findViewById(R.id.markerDelete);
         mButtonMarkerDescription = (Button) mInfoWindow.findViewById(R.id.markerDescription);
 
@@ -247,6 +251,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         @Override
         public void onMapReady (final GoogleMap googleMap){
             mMap = googleMap;
+            mTime = Calendar.getInstance();
 
 
             final MapWrapperLayout mapWrapperLayout = (MapWrapperLayout)findViewById(R.id.map_relative_layout);
@@ -272,8 +277,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
             overlayMarkers = new ArrayList<>();
             spawnPoints = SpawnLocation.getSpawnPoints();
-            //Check for user settings and load data if available
 
+
+            //Check for user settings and load data if available
             mFirstTime = mSharedPref.getBoolean("first_time", false);
 
             // Check for camera update settings
@@ -374,6 +380,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 public void onClick(View v) {
                     // Update location prior to placing circle
                     getLocation();
+                    SpawnLocation.checkSpawnTimes();
                     addCircle(mLastLocation);
                 }
             });
@@ -446,6 +453,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 @Override
                 protected void onClickConfirmed(View v, final Marker marker) {
                     marker.hideInfoWindow();
+                    Toast.makeText(MapsActivity.this, "Time is: " + marker.getTag(), Toast.LENGTH_LONG).show();
                     final String markerDescription = SpawnLocation.getMarkerDescription(MapsActivity.this, marker);
                     mMarkerDescriptionText.setText(markerDescription);
                     mMarkerDescriptionLayout.setVisibility(View.VISIBLE);
@@ -454,6 +462,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     mButtonMarkerDescriptionOK.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View view) {
+
                             String markerDescriptionNew = mMarkerDescriptionText.getText().toString();
                             SpawnLocation.addDescriptionToDb(MapsActivity.this, marker, markerDescriptionNew);
                             mMarkerDescriptionLayout.setVisibility(View.GONE);
@@ -464,17 +473,36 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             mButtonMarkerDescription.setOnTouchListener(mInfoDescriptionListener);
 
 
-            /*mInfoButtonTimeListener = new OnInfoWindowElemTouchListener(mButtonMarkerAddTime,
+            mInfoButtonTimeListener = new OnInfoWindowElemTouchListener(mButtonMarkerAddTime,
                     getResources().getDrawable(R.drawable.btn_default_normal_holo_light),
                     getResources().getDrawable(R.drawable.btn_default_pressed_holo_light))
             {
                 @Override
-                protected void onClickConfirmed(View v, Marker marker) {
+                protected void onClickConfirmed(View v, final Marker marker) {
                     // Here we can perform some action triggered after clicking the button
-                    Toast.makeText(MapsActivity.this, "Time's button clicked!", Toast.LENGTH_LONG).show();
+                    marker.hideInfoWindow();
+                    final NumberPicker np = new NumberPicker(MapsActivity.this);
+                    np.setMinValue(00);
+                    np.setMaxValue(59);
+                    final double latitude = marker.getPosition().latitude;
+                    final double longitude = marker.getPosition().longitude;
+                    final android.app.AlertDialog.Builder builder = new android.app.AlertDialog.Builder(MapsActivity.this);
+                    builder
+                            .setTitle("Set time for Spawn Point")
+                            .setView(np)
+                            .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int which) {
+                                    DatabaseHelper myDb = DatabaseHelper.getInstance(MapsActivity.this);
+                                    myDb.addTime(latitude, longitude, np.getValue() + "");
+                                    marker.setTag(np.getValue() + "");
+
+                                }
+                            })
+                            .setNegativeButton("Cancel", null)
+                            .show();
                 }
             };
-            mButtonMarkerAddTime.setOnTouchListener(mInfoButtonTimeListener);*/
+            mButtonMarkerAddTime.setOnTouchListener(mInfoButtonTimeListener);
 
 
 
@@ -490,6 +518,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     // Setting up the mInfoWindow with current's marker info
                     mInfoButtonDeleteListener.setMarker(marker);
                     mInfoDescriptionListener.setMarker(marker);
+                    mInfoButtonTimeListener.setMarker(marker);
 
                     // We must call this to set the current marker and mInfoWindow references
                     // to the MapWrapperLayout
@@ -792,6 +821,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         int spawnCount = 0;
         // Loop through database and load all spawn locations
         spawnCount = SpawnLocation.loadAllSpawnPoints(MapsActivity.this, mMap, mLastLocation, mLoadDistance, mLoadDistanceInt, mMarkerTransparency);
+        // Show the user how many spawn points were loaded
         Toast.makeText(this, "loaded " + spawnCount + " Spawn Points", Toast.LENGTH_LONG).show();
     }
 
@@ -846,12 +876,73 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
 
+
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode,  Intent data) {
+        /** check if received result code
+         is equal our requested code for draw permission  */
+        if (requestCode == REQUEST_CODE_OVERLAY) {
+            // ** if so check once again if we have permission */
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                if (Settings.canDrawOverlays(this)) {
+                    // continue here - permission was granted
+                    startOverlay();
+                }
+            }
+        }
+    }
+
+    public int getCircleResolution(int circleResolution) {
+        int resolution = 90;
+        switch (circleResolution) {
+            case 0:
+                resolution = 90;
+                break;
+            case 1:
+                resolution = 120;
+                break;
+            case 2:
+                resolution = 180;
+                break;
+        }
+        return resolution;
+    }
+
+    private void subtractCircle(Location location) {
+        mPolygonPointsGreen = Circles.subtractPolygonRed(mMap, location, MapsActivity.this, mCircleResolution);
+
+        if (mPolygonPointsGreen.size() >0) {
+            Circles.savePolygonToDB("Temp Polygon1", mPolygonPointsGreen, MapsActivity.this);
+            Circles.saveHolesToDB(MapsActivity.this);
+            // Create an store latLng so we can check if any red circles intersect
+            LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
+            Circles.drawCircleRed(latLng);
+            Circles.saveRedCirclesToDb(MapsActivity.this);
+            Circles.checkIntersecting(MapsActivity.this, mMap);
+            if (mMarkerTransparency) {
+                SpawnLocation.markerInCircle(mPolygonPointsGreen);
+            }
+        } else {
+            // Our polygon is gone, reset all marker's transparency
+            SpawnLocation.markerResetTransparency();
+        }
+    }
+
+    private void addCircle(Location location) {
+        mPolygonPointsGreen = Circles.drawPolygonGreen(mMap, location, MapsActivity.this, mCircleResolution);
+
+        Circles.savePolygonToDB("Temp Polygon1", mPolygonPointsGreen, MapsActivity.this);
+        Circles.saveHolesToDB(MapsActivity.this);
+
+        if (mMarkerTransparency) {
+            SpawnLocation.markerInCircle(mPolygonPointsGreen);
+        }
+    }
+
     private void startOverlay() {
 
         updateOverlayMap();
-
-
-
 
         if (mMoveOverlay) {
             final Handler updateHandler = new Handler();
@@ -1177,70 +1268,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         wm.removeView(mMapImageView);
     }
 
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode,  Intent data) {
-        /** check if received result code
-         is equal our requested code for draw permission  */
-        if (requestCode == REQUEST_CODE_OVERLAY) {
-            // ** if so check once again if we have permission */
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                if (Settings.canDrawOverlays(this)) {
-                    // continue here - permission was granted
-                    startOverlay();
-                }
-            }
-        }
-    }
-
-    public int getCircleResolution(int circleResolution) {
-        int resolution = 90;
-        switch (circleResolution) {
-            case 0:
-                resolution = 90;
-                break;
-            case 1:
-                resolution = 120;
-                break;
-            case 2:
-                resolution = 180;
-                break;
-        }
-        return resolution;
-    }
-
-    private void subtractCircle(Location location) {
-        mPolygonPointsGreen = Circles.subtractPolygonRed(mMap, location, MapsActivity.this, mCircleResolution);
-
-
-        if (mPolygonPointsGreen.size() >0) {
-            Circles.savePolygonToDB("Temp Polygon1", mPolygonPointsGreen, MapsActivity.this);
-            Circles.saveHolesToDB(MapsActivity.this);
-            // TODO temp code
-            LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
-            Circles.drawCircleRed(latLng);
-            Circles.saveRedCirclesToDb(MapsActivity.this);
-            Circles.checkIntersecting(MapsActivity.this, mMap);
-            if (mMarkerTransparency) {
-                SpawnLocation.markerInCircle(mPolygonPointsGreen);
-            }
-        } else {
-            SpawnLocation.markerResetTransparency();
-        }
-    }
-
-    private void addCircle(Location location) {
-        mPolygonPointsGreen = Circles.drawPolygonGreen(mMap, location, MapsActivity.this, mCircleResolution);
-
-
-        Circles.savePolygonToDB("Temp Polygon1", mPolygonPointsGreen, MapsActivity.this);
-        Circles.saveHolesToDB(MapsActivity.this);
-
-        if (mMarkerTransparency) {
-            SpawnLocation.markerInCircle(mPolygonPointsGreen);
-        }
-    }
-
     private void updateOverlayMap() {
         try {
             checkLocationPermission();
@@ -1337,5 +1364,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
 
     }
+
 
 }
