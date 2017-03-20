@@ -490,7 +490,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     final NumberPicker np = new NumberPicker(MapsActivity.this);
                     np.setMinValue(0);
                     np.setMaxValue(59);
-                    if (marker.getTag() != "") {
+                    if (marker.getTag() != null && marker.getTag() != "") {
                         np.setValue(Integer.parseInt(marker.getTag().toString()));
                     }
                     final double latitude = marker.getPosition().latitude;
@@ -504,7 +504,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                                     DatabaseHelper myDb = DatabaseHelper.getInstance(MapsActivity.this);
                                     myDb.addTime(latitude, longitude, np.getValue() + "");
                                     marker.setTag(np.getValue() + "");
-
+                                    SpawnLocation.addMarkerToSpawnTimes(marker);
                                 }
                             })
                             .setNegativeButton("Cancel", null)

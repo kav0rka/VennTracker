@@ -85,6 +85,10 @@ public class SpawnLocation {
         }
     }
 
+    public static void addMarkerToSpawnTimes(Marker marker) {
+        mSpawnPointTimes.add(marker);
+    }
+
     public static void checkSpawnTimes() {
         Calendar c = Calendar.getInstance();
         int currentTime = c.get(Calendar.MINUTE);

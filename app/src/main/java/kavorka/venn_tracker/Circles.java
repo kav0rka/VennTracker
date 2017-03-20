@@ -351,8 +351,10 @@ public class Circles {
             }
             if (isInside) {
                 mHoles.remove(i);
+
             }
         }
+
         // Remove any polygons we currently have before drawing our new polygon
         for (Polygon polygon : mPolygonsToClear) {
             polygon.remove();
