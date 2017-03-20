@@ -1,6 +1,5 @@
 package kavorka.venn_tracker;
 
-import android.app.ActionBar;
 import android.app.AlertDialog;
 import android.content.ContentValues;
 import android.content.Context;
@@ -8,7 +7,6 @@ import android.content.DialogInterface;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.location.Location;
 import android.os.Environment;
 import android.widget.Toast;
 
@@ -141,71 +139,56 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.close();
     }
 
-    public void removeAllSpawnLocations() {
+
+
+    // Call this from any method removing anything from the Database
+    // Just pass in the sql query
+    private void removeFromDb(String sql) {
         SQLiteDatabase db = this.getWritableDatabase();
-        String sql = "DELETE FROM " + TABLE_NAME + " WHERE TYPE = 'Spawn Location';";
         db.beginTransaction();
         db.execSQL(sql);
         db.setTransactionSuccessful();
         db.endTransaction();
         db.close();
+    }
+
+    public void removeIntersections() {
+        removeFromDb("DELETE FROM " + TABLE_NAME + " WHERE TYPE = 'Intersections';");
+    }
+
+    public void removeAllSpawnLocations() {
+        removeFromDb("DELETE FROM " + TABLE_NAME + " WHERE TYPE = 'Spawn Location';");
     }
 
     public void removeSpawnLocation(double latitude, double longitude) {
-        SQLiteDatabase db = this.getWritableDatabase();
-        String sql = "DELETE FROM " + TABLE_NAME +
+        removeFromDb("DELETE FROM " + TABLE_NAME +
                 " WHERE TYPE = 'Spawn Location'" +
                 " AND latitude = " + latitude +
-                " AND longitude = " + longitude + ";";
-        db.beginTransaction();
-        db.execSQL(sql);
-        db.setTransactionSuccessful();
-        db.endTransaction();
-        db.close();
+                " AND longitude = " + longitude + ";");
     }
 
     public void removePolygons() {
-        SQLiteDatabase db = this.getWritableDatabase();
-        String sql = "DELETE FROM " + TABLE_NAME + " WHERE TYPE LIKE 'Temp Polygon%';";
-        db.beginTransaction();
-        db.execSQL(sql);
-        db.setTransactionSuccessful();
-        db.endTransaction();
-        db.close();
+        removeFromDb("DELETE FROM " + TABLE_NAME + " WHERE TYPE LIKE 'Temp Polygon%';");
     }
 
     public void removeCircles() {
-        SQLiteDatabase db = this.getWritableDatabase();
-        String sql = "DELETE FROM " + TABLE_NAME + " WHERE TYPE LIKE 'Temp Circle%';";
-        db.beginTransaction();
-        db.execSQL(sql);
-        db.setTransactionSuccessful();
-        db.endTransaction();
-        db.close();
+        removeFromDb("DELETE FROM " + TABLE_NAME + " WHERE TYPE LIKE 'Temp Circle%';");
     }
 
 
     public void removeAllHoles() {
-        SQLiteDatabase db = this.getWritableDatabase();
-        String sql = "DELETE FROM " + TABLE_NAME + " WHERE TYPE LIKE 'Temp Hole%';";
-        db.beginTransaction();
-        db.execSQL(sql);
-        db.setTransactionSuccessful();
-        db.endTransaction();
-        db.close();
+        removeFromDb("DELETE FROM " + TABLE_NAME + " WHERE TYPE LIKE 'Temp Hole%';");
     }
 
 
     public Cursor getAllLocations() {
         SQLiteDatabase db = this.getReadableDatabase();
-        Cursor res = db.rawQuery("select * from " + TABLE_NAME, null);
-        return res;
+        return db.rawQuery("select * from " + TABLE_NAME, null);
     }
 
     public Cursor getAllLocations(String type) {
         SQLiteDatabase db = this.getReadableDatabase();
-        Cursor res = db.rawQuery("select * from " + TABLE_NAME + " WHERE type = '" + type + "';", null);
-        return res;
+        return db.rawQuery("select * from " + TABLE_NAME + " WHERE type = '" + type + "';", null);
     }
 
     public ArrayList<LatLng> getIntersections() {
@@ -230,16 +213,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             contentValues.put(COL_4, latLng.longitude);
             db.insert(TABLE_NAME, null, contentValues);
         }
-        db.setTransactionSuccessful();
-        db.endTransaction();
-        db.close();
-    }
-
-    public void removeIntersections() {
-        SQLiteDatabase db = this.getWritableDatabase();
-        String sql = "DELETE FROM " + TABLE_NAME + " WHERE TYPE = 'Intersections';";
-        db.beginTransaction();
-        db.execSQL(sql);
         db.setTransactionSuccessful();
         db.endTransaction();
         db.close();
