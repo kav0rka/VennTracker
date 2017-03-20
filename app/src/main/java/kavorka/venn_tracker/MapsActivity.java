@@ -86,17 +86,17 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private Button mMenu;
     private ImageButton mButtonCircleGreen;
     private ImageButton mButtonCircleRed;
-    private Boolean mMarkerVisibility;
+    private boolean mMarkerVisibility;
     private GoogleApiClient mGoogleApiClient;
     private static Location mLastLocation;
     private Marker mCurrLocationMarker;
     private ArrayList<LatLng> mPolygonPointsGreen;
     private SharedPreferences mSharedPref;
-    private Boolean mMoveCamera;
-    private Boolean mCircleSnap;
-    private Boolean mFirstTime;
-    private Boolean mMarkerTransparency;
-    private Boolean mLoadDistance;
+    private boolean mMoveCamera;
+    private boolean mCircleSnap;
+    private boolean mFirstTime;
+    private boolean mMarkerTransparency;
+    private boolean mLoadDistance;
     private int mLoadDistanceInt;
     private Button mButtonMarkerDelete;
     private Button mButtonMarkerAddTime;
@@ -148,7 +148,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private String mOverlayMapFormat;
     private String mOverlayMapStyle;
 
-    private Calendar mTime;
 
 
     @Override
@@ -251,7 +250,16 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         @Override
         public void onMapReady (final GoogleMap googleMap){
             mMap = googleMap;
-            mTime = Calendar.getInstance();
+
+            // Check if any of our spawn points are active every minute
+            final Handler spawnTimeHandler = new Handler();
+            spawnTimeHandler.postDelayed(new Runnable() {
+                public void run() {
+                    SpawnLocation.checkSpawnTimes();
+                    spawnTimeHandler.postDelayed(this, 1000 * 60); //Check every minute
+                }
+            }, 1000 * 60);
+
 
 
             final MapWrapperLayout mapWrapperLayout = (MapWrapperLayout)findViewById(R.id.map_relative_layout);
@@ -380,7 +388,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 public void onClick(View v) {
                     // Update location prior to placing circle
                     getLocation();
-                    SpawnLocation.checkSpawnTimes();
                     addCircle(mLastLocation);
                 }
             });
@@ -453,7 +460,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 @Override
                 protected void onClickConfirmed(View v, final Marker marker) {
                     marker.hideInfoWindow();
-                    Toast.makeText(MapsActivity.this, "Time is: " + marker.getTag(), Toast.LENGTH_LONG).show();
                     final String markerDescription = SpawnLocation.getMarkerDescription(MapsActivity.this, marker);
                     mMarkerDescriptionText.setText(markerDescription);
                     mMarkerDescriptionLayout.setVisibility(View.VISIBLE);
@@ -482,8 +488,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     // Here we can perform some action triggered after clicking the button
                     marker.hideInfoWindow();
                     final NumberPicker np = new NumberPicker(MapsActivity.this);
-                    np.setMinValue(00);
+                    np.setMinValue(0);
                     np.setMaxValue(59);
+                    if (marker.getTag() != "") {
+                        np.setValue(Integer.parseInt(marker.getTag().toString()));
+                    }
                     final double latitude = marker.getPosition().latitude;
                     final double longitude = marker.getPosition().longitude;
                     final android.app.AlertDialog.Builder builder = new android.app.AlertDialog.Builder(MapsActivity.this);
@@ -558,6 +567,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         // If we run loadSpawnPoints before Google Play Services finds the location, we get a crash.
         if (mLastLocation != null) {
             loadSpawnPoints();
+            // Once loaded, check if any spawn points are active
+            SpawnLocation.checkSpawnTimes();
         }
         else {
             Toast.makeText(MapsActivity.this,

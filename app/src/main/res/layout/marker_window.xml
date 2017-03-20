@@ -8,7 +8,7 @@
         style="?android:attr/buttonStyleSmall"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Add Time"
+        android:text="Spawn Time"
         android:id="@+id/markerAddTime"
         android:background="@null"/>
 
@@ -24,7 +24,7 @@
         style="?android:attr/buttonStyleSmall"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Delete marker"
+        android:text="Delete"
         android:id="@+id/markerDelete"
         android:background="@null"/>
 </LinearLayout>

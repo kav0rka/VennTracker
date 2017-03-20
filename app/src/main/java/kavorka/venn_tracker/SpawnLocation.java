@@ -32,6 +32,7 @@ public class SpawnLocation {
     public static void setSpawnPoint(final Context context, final GoogleMap googleMap, final LatLng latLng){
         Marker marker = googleMap.addMarker(new MarkerOptions()
                 .position(latLng));
+        marker.setIcon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE));
         mSpawnPoints.add(marker);
         // Put location into the database as 2 doubles with type Spawn Location.
         DatabaseHelper myDb = DatabaseHelper.getInstance(context);
