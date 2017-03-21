@@ -389,6 +389,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     // Update location prior to placing circle
                     getLocation();
                     addCircle(mLastLocation);
+                    SpawnLocation.checkSpawnTimes();
                 }
             });
             // Scale button when pressed
@@ -413,6 +414,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     // Update location prior to placing circle
                     getLocation();
                     subtractCircle(mLastLocation);
+                    SpawnLocation.checkSpawnTimes();
                 }
             });
             // Scale button when pressed
@@ -505,6 +507,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                                     myDb.addTime(latitude, longitude, np.getValue() + "");
                                     marker.setTag(np.getValue() + "");
                                     SpawnLocation.addMarkerToSpawnTimes(marker);
+                                    SpawnLocation.checkSpawnTimes();
                                 }
                             })
                             .setNegativeButton("Cancel", null)
