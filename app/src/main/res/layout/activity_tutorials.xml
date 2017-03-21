@@ -56,6 +56,13 @@
                 android:id="@+id/buttonTutorialsMenuSpawnPoints"
                 />
 
+            <Button
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Spawn Times"
+                android:id="@+id/buttonTutorialsMenuSpawnTimes"
+                />
+
         </LinearLayout>
 
     </LinearLayout>

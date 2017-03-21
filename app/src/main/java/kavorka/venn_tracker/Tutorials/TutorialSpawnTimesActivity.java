@@ -18,7 +18,7 @@ import android.widget.TextView;
 import kavorka.venn_tracker.R;
 
 public class TutorialSpawnTimesActivity extends AppCompatActivity {
-    private Spinner mSpinnerSpawnPoints;
+    private Spinner mSpinnerSpawnTimes;
     private ImageButton mArrowLeft;
     private ImageButton mArrowRight;
     private TextView mTextPageNumber;
@@ -29,7 +29,7 @@ public class TutorialSpawnTimesActivity extends AppCompatActivity {
     private static final int SWIPE_VELOCITY_THRESHOLD = 100;
 
     private int mPageNumber;
-    private final int mPAGEFINAL = 8;
+    private final int mPAGEFINAL = 5;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,7 +39,7 @@ public class TutorialSpawnTimesActivity extends AppCompatActivity {
         mGestureDetector = new GestureDetectorCompat(this, new TutorialSpawnTimesActivity.MyGestureListener());
 
 
-        mSpinnerSpawnPoints = (Spinner) findViewById(R.id.spinnerTutorialsMenu);
+        mSpinnerSpawnTimes = (Spinner) findViewById(R.id.spinnerTutorialsMenu);
         mTextPageNumber = (TextView) findViewById(R.id.tutorialsPageNumber);
         mTextMain = (TextView) findViewById(R.id.textViewTutorials);
         mBackgroundImage= (ImageView) findViewById(R.id.imageViewTutorials);
@@ -68,12 +68,12 @@ public class TutorialSpawnTimesActivity extends AppCompatActivity {
 
 
         ArrayAdapter<String> adapter = new ArrayAdapter<>(TutorialSpawnTimesActivity.this,
-                android.R.layout.simple_spinner_item,TutorialSpinnerLists.getSpawnPointsList());
+                android.R.layout.simple_spinner_item,TutorialSpinnerLists.getSpawnTimesList());
 
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        mSpinnerSpawnPoints.setAdapter(adapter);
+        mSpinnerSpawnTimes.setAdapter(adapter);
 
-        mSpinnerSpawnPoints.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+        mSpinnerSpawnTimes.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 ((TextView) parent.getChildAt(0)).setTextColor(Color.WHITE);
@@ -83,22 +83,11 @@ public class TutorialSpawnTimesActivity extends AppCompatActivity {
                         mPageNumber = 1;
                         break;
                     case 1:
-                        if (mPageNumber <=2 || mPageNumber >=4) {
-                            mPageNumber = 2;
+                        if (mPageNumber < 3) {
+                            mPageNumber = 3;
                         }
                         break;
                     case 2:
-                        mPageNumber = 4;
-                        break;
-                    case 3:
-                        if (mPageNumber <=5 || mPageNumber >=8) {
-                            mPageNumber = 5;
-                        }
-                        break;
-                    case 4:
-                        mPageNumber = 8;
-                        break;
-                    case 5:
                         startActivity(new Intent(TutorialSpawnTimesActivity.this, TutorialsActivity.class));
                         break;
                 }
@@ -134,44 +123,30 @@ public class TutorialSpawnTimesActivity extends AppCompatActivity {
         // Checks what page we are on and sets fields accordingly
         switch (mPageNumber) {
             case 1:
-                mBackgroundImage.setImageResource(R.drawable.ic_tutorials_spawns_points_1);
-                mTextMain.setText(R.string.Tutorials_Spawn_Points_1);
-                mSpinnerSpawnPoints.setSelection(0);
+                mBackgroundImage.setImageResource(R.drawable.ic_tutorials_spawn_times_1);
+                mTextMain.setText(R.string.Tutorials_Spawn_Times_1);
+                mSpinnerSpawnTimes.setSelection(0);
                 break;
             case 2:
-                mBackgroundImage.setImageResource(R.drawable.ic_tutorials_spawns_points_2);
-                mTextMain.setText(R.string.Tutorials_Spawn_Points_2);
-                mSpinnerSpawnPoints.setSelection(1);
+                mBackgroundImage.setImageResource(R.drawable.ic_tutorials_spawn_times_1);
+                mTextMain.setText(R.string.Tutorials_Spawn_Times_2);
+                mSpinnerSpawnTimes.setSelection(0);
                 break;
             case 3:
-                mBackgroundImage.setImageResource(R.drawable.ic_tutorials_spawns_points_3);
-                mTextMain.setText(R.string.Tutorials_Spawn_Points_3);
-                mSpinnerSpawnPoints.setSelection(1);
+                mBackgroundImage.setImageResource(R.drawable.ic_tutorials_spawn_times_2);
+                mTextMain.setText(R.string.Tutorials_Spawn_Times_3);
+                mSpinnerSpawnTimes.setSelection(1);
                 break;
             case 4:
-                mBackgroundImage.setImageResource(R.drawable.ic_tutorials_spawns_points_4);
-                mTextMain.setText(R.string.Tutorials_Spawn_Points_4);
-                mSpinnerSpawnPoints.setSelection(2);
+                mBackgroundImage.setImageResource(R.drawable.ic_tutorials_spawn_times_3);
+                mTextMain.setText(R.string.Tutorials_Spawn_Times_4);
+                mSpinnerSpawnTimes.setSelection(1);
                 break;
             case 5:
-                mBackgroundImage.setImageResource(R.drawable.ic_tutorials_spawns_points_5);
-                mTextMain.setText(R.string.Tutorials_Spawn_Points_5);
-                mSpinnerSpawnPoints.setSelection(3);
+                mBackgroundImage.setImageResource(R.drawable.ic_tutorials_spawn_times_1);
+                mTextMain.setText(R.string.Tutorials_Spawn_Times_5);
+                mSpinnerSpawnTimes.setSelection(1);
                 break;
-            case 6:
-                mBackgroundImage.setImageResource(R.drawable.ic_tutorials_spawns_points_6);
-                mTextMain.setText(R.string.Tutorials_Spawn_Points_6);
-                mSpinnerSpawnPoints.setSelection(3);
-                break;
-            case 7:
-                mBackgroundImage.setImageResource(R.drawable.ic_tutorials_spawns_points_7);
-                mTextMain.setText(R.string.Tutorials_Spawn_Points_7);
-                mSpinnerSpawnPoints.setSelection(3);
-                break;
-            case 8:
-                mBackgroundImage.setImageResource(R.drawable.ic_tutorials_spawns_points_1);
-                mTextMain.setText(R.string.Tutorials_Spawn_Points_8);
-                mSpinnerSpawnPoints.setSelection(4);
         }
     }
 

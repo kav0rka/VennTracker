@@ -65,6 +65,10 @@
             android:name=".Tutorials.TutorialSpawnPointsActivity"
             android:screenOrientation="portrait">
         </activity>
+        <activity
+            android:name=".Tutorials.TutorialSpawnTimesActivity"
+            android:screenOrientation="portrait">
+        </activity>
     </application>
 
 </manifest>

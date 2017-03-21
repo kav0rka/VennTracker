@@ -20,10 +20,19 @@ public class TutorialSpinnerLists {
             "< Back"
     };
 
+    private static final String[] mSpawnTimesMenuList = {
+            "What are spawn times?",
+            "Setting a spawn time",
+            "< Back"
+    };
+
     public static String[] getCirclesList() {
         return mCirclesTutorialMenuList;
     }
     public static String[] getSpawnPointsList() {
         return mSpawnPointsMenuList;
+    }
+    public static String[] getSpawnTimesList() {
+        return mSpawnTimesMenuList;
     }
 }

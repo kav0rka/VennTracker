@@ -14,6 +14,7 @@ public class TutorialsActivity extends AppCompatActivity {
 
     private Button mCirclesButton;
     private Button mSpawnPointsButton;
+    private Button mSpawnTimesButton;
     private Button mBackButton;
 
 
@@ -24,6 +25,8 @@ public class TutorialsActivity extends AppCompatActivity {
 
         mCirclesButton = (Button) findViewById(R.id.buttonTutorialsMenuCircles);
         mSpawnPointsButton = (Button) findViewById(R.id.buttonTutorialsMenuSpawnPoints);
+        mSpawnTimesButton = (Button) findViewById(R.id.buttonTutorialsMenuSpawnTimes);
+
         mBackButton = (Button) findViewById(R.id.buttonTutorialsMenuBack);
 
         mCirclesButton.setOnClickListener(new View.OnClickListener() {
@@ -36,7 +39,12 @@ public class TutorialsActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 startActivity(new Intent(TutorialsActivity.this, TutorialSpawnPointsActivity.class));
-
+            }
+        });
+        mSpawnTimesButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                startActivity(new Intent(TutorialsActivity.this, TutorialSpawnTimesActivity.class));
             }
         });
         mBackButton.setOnClickListener(new View.OnClickListener() {

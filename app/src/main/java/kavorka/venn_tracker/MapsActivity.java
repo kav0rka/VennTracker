@@ -256,9 +256,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             spawnTimeHandler.postDelayed(new Runnable() {
                 public void run() {
                     SpawnLocation.checkSpawnTimes();
-                    spawnTimeHandler.postDelayed(this, 1000 * 60); //Check every minute
+                    spawnTimeHandler.postDelayed(this, 1000 * 30); //Check every 30 seconds
                 }
-            }, 1000 * 60);
+            }, 1000 * 30);
 
 
 

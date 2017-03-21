@@ -70,7 +70,7 @@
 
     <!--Text for Spawn Points tutorial-->
     <string name="Tutorials_Spawn_Points_1">
-        "In game, Pokemon will only spawn at specific locations on your map.
+        "In game, Pokémon will only spawn at specific locations on your map.
         \nVenn Tracker allows you to create spawn markers so you can map out the spawn locations near you.
         \nIf you have any spawn point markers within your searchable area, check there first.
     </string>
@@ -99,6 +99,26 @@
         \n(There are some exceptions, but this is almost always true)
         \n\nEvery week or two, some spawn points get added and removed.
         \nSo far, most spawn points have been staying the same, but keep this in mind when tracking."
+    </string>
+    <string name="Tutorials_Spawn_Times_1">
+        "Pokémon will spawn at the same minute every hour and stay on the map for 30 minutes.
+        \nVennTracker allows you to set the spawn time of each spawn marker.
+        \nIf a time is set, you can see if that spawn point will have a Pokémon at it."
+    </string>
+    <string name="Tutorials_Spawn_Times_2">
+        "Blue markers indicate that you have not set a time for that marker.
+        \nRed marker = Inactive, no Pokémon.
+        \nGreen marker = Active, there will be a Pokémon."
+    </string>
+    <string name="Tutorials_Spawn_Times_3">
+        "To set a spawn time for a marker, touch it and select 'Spawn Time'."
+    </string>
+    <string name="Tutorials_Spawn_Times_4">
+        \n\n\n\n\n\n\n\n\n\n"Now select the minute that the Pokémon spawns."
+    </string>
+    <string name="Tutorials_Spawn_Times_5">
+        "VennTracker will check each marker every 30 seconds to see if it has become active.
+        \nWhen tracking a Pokémon, only check the spawn points that are indicated as being active."
     </string>
 
 
