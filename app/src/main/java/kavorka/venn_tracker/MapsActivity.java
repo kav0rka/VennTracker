@@ -205,7 +205,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mMenu = (Button) findViewById(R.id.buttonMenu);
 
         // Initialize map touch menu and buttons
-        mMapClickMenu = (RelativeLayout) findViewById(R.id.onMapClickLayout);
+        mMapClickMenu = (RelativeLayout) findViewById(R.id.onMapTouchLayout);
         mMarkerDescriptionLayout = (RelativeLayout) findViewById(R.id.markerDescriptionLayout);
 
         mMapClickMarker = (ImageButton) findViewById(R.id.button_map_click_marker);
