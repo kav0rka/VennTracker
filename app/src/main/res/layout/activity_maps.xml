@@ -16,14 +16,6 @@
           android:layout_height="match_parent"
           tools:context="kavorka.venn_tracker.MapsActivity"/>
 
-    <!--<com.pkmmte.view.CircularImageView
-        android:layout_width="150dp"
-        android:layout_height="150dp"
-        android:id="@+id/img_map_route"
-        android:layout_gravity="center"
-        android:layout_centerVertical="true"
-        android:layout_centerHorizontal="true" />-->
-
     <ImageButton
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -60,62 +52,63 @@
         android:layout_margin="10dp"/>
 
     <RelativeLayout
+        android:id="@+id/onMapTouchLayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:id="@+id/onMapClickLayout"
         android:clickable="true"
         android:visibility="gone">
 
         <TextView
+            android:id="@+id/textView6"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:id="@+id/textView6"
             android:background="#dd000000"/>
 
         <LinearLayout
-            android:orientation="horizontal"
+            android:id="@+id/linear_layout_map_click"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_centerVertical="true"
             android:layout_centerHorizontal="true"
-            android:id="@+id/linear_layout_map_click">
+            android:layout_centerVertical="true"
+            android:orientation="horizontal">
 
             <ImageButton
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:src="@drawable/ic_circle_red"
                 android:id="@+id/button_map_click_subtract"
-                android:layout_weight="1"
-                android:background="@null"/>
-
-            <ImageButton
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:src="@drawable/ic_circle_green"
-                android:id="@+id/button_map_click_add"
                 android:layout_weight="1"
-                android:background="@null"/>
+                android:background="@null"
+                android:src="@drawable/ic_circle_red"/>
+
+            <ImageButton
+                android:id="@+id/button_map_click_add"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:background="@null"
+                android:src="@drawable/ic_circle_green"/>
         </LinearLayout>
 
         <ImageButton
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-
             android:id="@+id/button_map_click_cancel"
+            android:layout_width="wrap_content"
+
+            android:layout_height="wrap_content"
             android:layout_below="@+id/linear_layout_map_click"
             android:layout_centerHorizontal="true"
             android:layout_marginTop="42dp"
-            android:background="@null"/>
+            android:background="@null"
+            android:src="@android:drawable/ic_menu_close_clear_cancel"/>
         <!--android:src="@drawable/ic_close_dark"-->
 
         <ImageButton
+            android:id="@+id/button_map_click_marker"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@drawable/ic_add_location_white_48dp"
             android:layout_above="@+id/linear_layout_map_click"
             android:layout_centerHorizontal="true"
-            android:id="@+id/button_map_click_marker"
-            android:background="@null"/>
+            android:background="@null"
+            android:src="@drawable/ic_add_location_white_48dp"/>
 
     </RelativeLayout>
 
