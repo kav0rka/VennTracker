@@ -90,28 +90,29 @@ public class SpawnLocation {
     }
 
     public static void checkSpawnTimes() {
-        Calendar c = Calendar.getInstance();
-        int currentTime = c.get(Calendar.MINUTE);
-        for (Marker marker : mSpawnPointTimes) {
-            boolean overlap = false;
-            int startTime = Integer.parseInt(marker.getTag().toString());
-            int endTime = startTime + 30;
-            if (endTime >= 60) {
-                overlap = true;
-                endTime -= 60;
-            }
+        if (mSpawnPoints.size() > 0) {
+            Calendar c = Calendar.getInstance();
+            int currentTime = c.get(Calendar.MINUTE);
+            for (Marker marker : mSpawnPointTimes) {
+                if (marker.getTag() != null) {
+                    boolean overlap = false;
+                    int startTime = Integer.parseInt(marker.getTag().toString());
+                    int endTime = startTime + 30;
+                    if (endTime >= 60) {
+                        overlap = true;
+                        endTime -= 60;
+                    }
 
-            if (!overlap && currentTime >= startTime && currentTime <= endTime) {
-                marker.setIcon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN));
-            }
-            else if (overlap && currentTime >= 30 && currentTime >= startTime && currentTime <= (startTime + 30)) {
-                marker.setIcon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN));
-            }
-            else if (overlap && currentTime < 30 && currentTime <= endTime) {
-                marker.setIcon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN));
-            }
-            else {
-                marker.setIcon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED));
+                    if (!overlap && currentTime >= startTime && currentTime <= endTime) {
+                        marker.setIcon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN));
+                    } else if (overlap && currentTime >= 30 && currentTime >= startTime && currentTime <= (startTime + 30)) {
+                        marker.setIcon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN));
+                    } else if (overlap && currentTime < 30 && currentTime <= endTime) {
+                        marker.setIcon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN));
+                    } else {
+                        marker.setIcon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED));
+                    }
+                }
             }
         }
     }

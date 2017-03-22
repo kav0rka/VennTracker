@@ -570,8 +570,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         // If we run loadSpawnPoints before Google Play Services finds the location, we get a crash.
         if (mLastLocation != null) {
             loadSpawnPoints();
-            // Once loaded, check if any spawn points are active
-            SpawnLocation.checkSpawnTimes();
         }
         else {
             Toast.makeText(MapsActivity.this,
@@ -835,6 +833,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         int spawnCount = 0;
         // Loop through database and load all spawn locations
         spawnCount = SpawnLocation.loadAllSpawnPoints(MapsActivity.this, mMap, mLastLocation, mLoadDistance, mLoadDistanceInt, mMarkerTransparency);
+        // Once loaded, check if any spawn points are active
+        SpawnLocation.checkSpawnTimes();
         // Show the user how many spawn points were loaded
         Toast.makeText(this, "loaded " + spawnCount + " Spawn Points", Toast.LENGTH_LONG).show();
     }

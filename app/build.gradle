@@ -8,8 +8,8 @@ android {
         applicationId "kavorka.venn_tracker"
         minSdkVersion 16
         targetSdkVersion 25
-        versionCode 29
-        versionName "1.25"
+        versionCode 31
+        versionName "1.31"
 
         // Enabling multidex support.
         multiDexEnabled true

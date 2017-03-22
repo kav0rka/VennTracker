@@ -11,7 +11,17 @@
 
     <!--Text for new features popup-->
     <string name="New_Features">
-        "\n 1.25
+        "\n1.31
+        \n - Fixed crash with inported data
+        \n - Exporting spawn data
+        \n 1.3
+        \n - Added ability to set spawn time for markers
+        \n - Markers change color if they are active/inactive (See tutorial in menu)
+        \n\n - After subtracting 2 circles that also intersect, VennTracker will now lock in on the Pokemon's position
+        \n - This is all done with math, nothing else
+        \n\n - Bug fixes
+        \n - Speed improvements
+        \n 1.25
         \n - Added import for json files
         \n - so far, I have only tested json exported from pokealert (contact me if you get any errors)
         \n - json filename must include "spawn"
@@ -22,12 +32,6 @@
         \n - Exported data can be found in your downloads folder on your phone
         \n - Imported data must be in .csv format and must contain "spawn" in filename.
         \n - map overlay now refreshes less frequently
-        \n\n1.23
-        \n- The map long press menu now updates the overlay map when you add something
-        \n- Map overlay is cleaner
-        \n- Overlay should take up less system resources
-        \n- Overlay map now updates every 2 seconds automatically (change in settings)
-        \n- Overlay map now shows all spawn points if you don’t have any green area"
     </string>
 
     <!--Text for Circles tutorial-->

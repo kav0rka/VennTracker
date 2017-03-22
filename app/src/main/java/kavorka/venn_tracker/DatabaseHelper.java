@@ -26,7 +26,10 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 
 public class DatabaseHelper extends SQLiteOpenHelper {
     private static final String DATABASE_NAME = "locations.db";
@@ -358,6 +361,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         int columnNumber = 0;
         int importCount = 0;
         String type = "Spawn Location";
+
         try {
             db.beginTransaction();
             assert reader != null;
@@ -381,9 +385,16 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                     boolean addLocation = true;
                     double latitude = Double.parseDouble(nextLine[columnLatitude]);
                     double longitude = Double.parseDouble(nextLine[columnLongitude]);
+                    long time;
+                    if (!nextLine[columnTime].equals("")) {
+                        time = Long.parseLong(nextLine[columnTime]);
+                    }
+                    else {
+                        // Just needs to be over 60 so it doent get loaded
+                        time = 7000;
+                    }
                     Cursor res = db.rawQuery("select * from " + TABLE_NAME, null);
                     while (res.moveToNext()) {
-                        String dbId = res.getString(0);
                         String dbType = res.getString(1);
                         double dbLat = res.getDouble(2);
                         double dbLng = res.getDouble(3);
@@ -398,6 +409,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                         contentValues.put(COL_2, type);
                         contentValues.put(COL_3, latitude);
                         contentValues.put(COL_4, longitude);
+                        if (time < 60) {
+                            contentValues.put(COL_5, time);
+                        } else {
+                            contentValues.put(COL_5, "");
+                        }
                         contentValues.put(COL_6, description);
                         importCount++;
                         db.insert(TABLE_NAME, null, contentValues);
@@ -467,7 +483,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                     if (dbType.equals("Spawn Location")) {
                         if (dbLat == latitude && dbLng == longitude) {
                             addLocation = false;
-                            //Toast.makeText(context, "skipping", Toast.LENGTH_SHORT).show();
                         }
                     }
                 }
@@ -476,6 +491,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                     contentValues.put(COL_2, type);
                     contentValues.put(COL_3, latitude);
                     contentValues.put(COL_4, longitude);
+                    contentValues.put(COL_5, "");
                     contentValues.put(COL_6, description);
                     importCount++;
                     db.insert(TABLE_NAME, null, contentValues);
